@@ -56,6 +56,6 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
             printf "%s" "${{ secrets.ENV_FILE }}" > .env
             git pull origin develop
-            docker-compose down
-            docker-compose up -d --build
+            docker compose down
+            docker compose up -d --build
             docker image prune -f
