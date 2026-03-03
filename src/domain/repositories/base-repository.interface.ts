@@ -1,9 +1,8 @@
-import { FindOptionsOrder } from "typeorm";
+import { DeepPartial, FindOptionsOrder } from "typeorm";
 
-
-export interface IBaseRepository {
-  create(data: any, queryRunner?: any): Promise<any>;
-  update(id: number, data: any, queryRunner?: any): Promise<any>;
+export interface IBaseRepository<T> {
+  create(data: DeepPartial<T>, queryRunner?: any): Promise<T>;
+  update(id: number, data: DeepPartial<T>, queryRunner?: any): Promise<any>;
   upsert(
     data: any,
     queryRunner?: any,
@@ -16,14 +15,14 @@ export interface IBaseRepository {
     select?: { [key: string]: boolean },
     relation?: string[],
     order?: { [key: string]: "ASC" | "DESC" },
-  ): Promise<any>;
+  ): Promise<T[]>;
   findOneByFilter(
     filter: any,
     select?: { [key: string]: boolean },
     relation?: string[],
     order?: FindOptionsOrder<any>,
     withDeleted?: boolean,
-  ): Promise<any>;
+  ): Promise<T | null>;
   getListsWithGetRawMany(
     query: any,
     callbackQuery: (queryBuilder) => any,
