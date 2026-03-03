@@ -1,6 +1,9 @@
 export class UserWithoutPassword {
   id: number;
-  user_name: string;
+  email: string;
+  phone: string;
+  full_name: string;
+  avatar_url?: string;
   refresh_token?: string;
   deleted_at?: Date;
 }

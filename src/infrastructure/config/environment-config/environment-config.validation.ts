@@ -1,12 +1,5 @@
-
 import { plainToClass } from "class-transformer";
-import {
-  IsBoolean,
-  IsEnum,
-  IsNumber,
-  IsString,
-  validateSync,
-} from "class-validator";
+import { IsBoolean, IsEnum, IsNumber, IsString, validateSync } from "class-validator";
 import * as dotenv from "dotenv";
 dotenv.config();
 enum Environment {

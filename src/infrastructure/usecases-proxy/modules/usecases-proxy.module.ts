@@ -7,6 +7,7 @@ import { ExceptionsModule } from "src/infrastructure/exceptions/exceptions.modul
 import { JwtTokenService } from "src/infrastructure/services/jwt/jwt.service";
 import { BcryptModule } from "src/infrastructure/services/bcrypt/bcrypt.module";
 import { RepositoriesModule } from "src/infrastructure/repositories/repositories.module";
+import authUsecasesProvider from "../providers/auth-usecases.provider";
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ export class UsecasesProxyModule extends ProxyModule {
   static register(): DynamicModule {
     return {
       module: UsecasesProxyModule,
-      providers: [],
+      providers: [authUsecasesProvider],
       exports: Object.values(ProxyModule),
     };
   }
