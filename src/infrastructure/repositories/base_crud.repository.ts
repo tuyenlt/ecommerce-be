@@ -12,19 +12,14 @@ import { escapeRegExp } from "../common/utils/escape_reg_exp.util";
 import { BaseEntity } from "../entities/base.entity";
 import { castArray } from "lodash";
 import { randomAlphabet } from "../common/utils/common.util";
-import {
-  CONDITION_FILTER_ENUM,
-  QUERY_OPERATOR_ENUM,
-} from "../common/constants/query.constant";
-import { IBaseRepository } from "src/domain/repositories/baseRepository.interface";
+import { CONDITION_FILTER_ENUM, QUERY_OPERATOR_ENUM } from "../common/constants/query.constant";
+import { IBaseRepository } from "src/domain/repositories/base-repository.interface";
 import { ORDER_DIRECTION } from "../common/constants/common.constant";
 /**
  * Base repository class for projects.
  */
 @Injectable()
-export abstract class BaseCrudRepository<
-  E extends BaseEntity,
-> implements IBaseRepository {
+export abstract class BaseCrudRepository<E extends BaseEntity> implements IBaseRepository<E> {
   constructor(
     private readonly repository: Repository<E>,
     private readonly alias: string,
@@ -41,18 +36,14 @@ export abstract class BaseCrudRepository<
 
   async update(id: number, data, queryRunner?: QueryRunner) {
     if (queryRunner) {
-      return await queryRunner.manager
-        .getRepository(this.alias)
-        .update(id, data);
+      return await queryRunner.manager.getRepository(this.alias).update(id, data);
     }
     return await this.repository.update(id, data);
   }
 
   async updateBy(where: FindOptionsWhere<E>, data, queryRunner?: QueryRunner) {
     if (queryRunner) {
-      return await queryRunner.manager
-        .getRepository(this.repository.target)
-        .update(where, data);
+      return await queryRunner.manager.getRepository(this.repository.target).update(where, data);
     }
     return await this.repository.update(where, data);
   }
@@ -184,18 +175,14 @@ export abstract class BaseCrudRepository<
 
   async delete(id: number, queryRunner?: QueryRunner) {
     if (queryRunner) {
-      return await queryRunner.manager
-        .getRepository(this.repository.target)
-        .softDelete(id);
+      return await queryRunner.manager.getRepository(this.repository.target).softDelete(id);
     }
     return await this.repository.softDelete(id);
   }
 
   async bulkDelete(ids: number[], queryRunner?: QueryRunner) {
     if (queryRunner) {
-      return await queryRunner.manager
-        .getRepository(this.repository.target)
-        .softDelete(ids);
+      return await queryRunner.manager.getRepository(this.repository.target).softDelete(ids);
     }
     return await this.repository.softDelete(ids);
   }
@@ -216,10 +203,7 @@ export abstract class BaseCrudRepository<
       .execute();
   }
 
-  async getOneByFilter(
-    callbackQuery: (queryBuilder) => any,
-    callbackSelectData: (data) => any,
-  ) {
+  async getOneByFilter(callbackQuery: (queryBuilder) => any, callbackSelectData: (data) => any) {
     const queryBuilder = this.repository.createQueryBuilder(this.alias);
     const [data] = await Promise.all([callbackQuery(queryBuilder).getOne()]);
     if (!data) {
@@ -248,9 +232,7 @@ export abstract class BaseCrudRepository<
 
   async hardDelete(id: number | number[], queryRunner?: QueryRunner) {
     if (queryRunner) {
-      return await queryRunner.manager
-        .getRepository(this.repository.target)
-        .delete(id);
+      return await queryRunner.manager.getRepository(this.repository.target).delete(id);
     }
     return await this.repository.delete(id);
   }
@@ -272,9 +254,7 @@ export abstract class BaseCrudRepository<
   /* Sort
    */
   setSort(queryBuilder, sort: { [key: string]: ORDER_DIRECTION }) {
-    Object.entries(sort).forEach(([key, value]) =>
-      queryBuilder.addOrderBy(`${key}`, value),
-    );
+    Object.entries(sort).forEach(([key, value]) => queryBuilder.addOrderBy(`${key}`, value));
     return queryBuilder;
   }
 
@@ -332,16 +312,14 @@ export abstract class BaseCrudRepository<
     if (operator === QUERY_OPERATOR_ENUM.IN) {
       sqlRaw = `${key} IN (:...${randomKeyVariableBinding})`;
       queryParams = { [randomKeyVariableBinding]: castArray(filterValues) };
-      (!Array.isArray(filterValues) || filterValues.length === 0) &&
-        (sqlRaw = null);
+      (!Array.isArray(filterValues) || filterValues.length === 0) && (sqlRaw = null);
       return { sqlRaw, queryParams };
     }
 
     if (operator === QUERY_OPERATOR_ENUM.NOT_IN) {
       sqlRaw = `${key} NOT IN (:...${randomKeyVariableBinding})`;
       queryParams = { [randomKeyVariableBinding]: castArray(filterValues) };
-      (!Array.isArray(filterValues) || filterValues.length === 0) &&
-        (sqlRaw = null);
+      (!Array.isArray(filterValues) || filterValues.length === 0) && (sqlRaw = null);
       return { sqlRaw, queryParams };
     }
 

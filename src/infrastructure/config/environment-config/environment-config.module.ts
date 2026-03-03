@@ -8,9 +8,7 @@ import { validate } from "./environment-config.validation";
     ConfigModule.forRoot({
       envFilePath: ".env",
       ignoreEnvFile:
-        process.env.NODE_ENV === "local" || process.env.NODE_ENV === "test"
-          ? false
-          : true,
+        process.env.NODE_ENV === "local" || process.env.NODE_ENV === "test" ? false : true,
       isGlobal: true,
       validate,
     }),

@@ -1,14 +1,8 @@
-export interface IJwtServicePayload {
-  user_name: string;
-}
+import { TokenPayload } from "../model/auth";
 
 export interface IJwtService {
-  checkToken(token: string): Promise<any>;
-  createToken(
-    payload: IJwtServicePayload,
-    secret: string,
-    expiresIn: string,
-  ): string;
-  verifyToken(token: string): any;
-  verifyRefreshToken(token: string): any;
+  signAccessToken(payload: TokenPayload): string;
+  signRefreshToken(payload: TokenPayload): string;
+  verifyAccessToken(token: string): TokenPayload;
+  verifyRefreshToken(token: string): TokenPayload;
 }

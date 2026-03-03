@@ -1,4 +1,3 @@
-
 import {
   PrimaryGeneratedColumn,
   DeleteDateColumn,
@@ -10,12 +9,12 @@ export class BaseEntity {
   @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
 
-  @CreateDateColumn({ name: "created_at", type: "datetime2", nullable: true })
+  @CreateDateColumn({ name: "created_at", type: "timestamp", nullable: true })
   created_at?: Date;
 
-  @UpdateDateColumn({ name: "updated_at", type: "datetime2", nullable: true })
+  @UpdateDateColumn({ name: "updated_at", type: "timestamp", nullable: true })
   updated_at?: Date;
 
-  @DeleteDateColumn({ name: "deleted_at", type: "datetime2", nullable: true })
+  @DeleteDateColumn({ name: "deleted_at", type: "timestamp", nullable: true })
   deleted_at?: Date;
 }

@@ -1,45 +1,49 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import {
-  IJwtService,
-  IJwtServicePayload,
-} from "../../../domain/adapters/jwt.interface";
+import { IJwtService } from "../../../domain/adapters/jwt.interface";
+import { TokenPayload } from "src/domain/model/auth";
+import { EnvironmentConfigService } from "src/infrastructure/config/environment-config/environment-config.service";
 
 @Injectable()
 export class JwtTokenService implements IJwtService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly environmentConfig: EnvironmentConfigService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async checkToken(token: string): Promise<any> {
-    const decode = await this.jwtService.verifyAsync(token);
-    return decode;
-  }
-
-  createToken(
-    payload: IJwtServicePayload,
-    secret: string,
-    expiresIn: string,
-  ): string {
+  signAccessToken(payload: TokenPayload): string {
+    const secret = this.environmentConfig.getJwtSecret();
+    const expiresIn = this.environmentConfig.getJwtExpirationTime();
     return this.jwtService.sign(payload, {
       secret,
-      expiresIn: expiresIn as any,
+      expiresIn,
     });
   }
 
-  verifyToken(token: string): any {
+  signRefreshToken(payload: TokenPayload): string {
+    return this.jwtService.sign(payload, {
+      secret: this.environmentConfig.getJwtRefreshSecret(),
+      expiresIn: this.environmentConfig.getJwtRefreshExpirationTime(),
+    });
+  }
+
+  verifyAccessToken(token: string): TokenPayload {
     try {
-      return this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+      return this.jwtService.verify<TokenPayload>(token, {
+        secret: this.environmentConfig.getJwtSecret(),
+      });
     } catch {
-      return { email: null };
+      throw new UnauthorizedException("Invalid access token");
     }
   }
 
-  verifyRefreshToken(token: string): any {
+  verifyRefreshToken(token: string): TokenPayload {
     try {
-      return this.jwtService.verify(token, {
-        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      return this.jwtService.verify<TokenPayload>(token, {
+        secret: this.environmentConfig.getJwtRefreshSecret(),
       });
     } catch {
-      return { user_name: null };
+      throw new UnauthorizedException("Invalid refresh token");
     }
   }
 }

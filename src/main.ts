@@ -25,11 +25,7 @@ async function bootstrap() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   // pipes
-  app.useGlobalPipes(
-    new TrimBodyPipe(),
-    new ModifyPagingFilterPipe(),
-    new DtoValidationPipe(),
-  );
+  app.useGlobalPipes(new TrimBodyPipe(), new ModifyPagingFilterPipe(), new DtoValidationPipe());
 
   // interceptors
   app.useGlobalInterceptors(new LoggingInterceptor(new LoggerService()));
@@ -40,10 +36,7 @@ async function bootstrap() {
 
   // swagger config
   if (env !== "production") {
-    const config = new DocumentBuilder()
-      .addBearerAuth()
-      .setVersion("1.0")
-      .build();
+    const config = new DocumentBuilder().addBearerAuth().setVersion("1.0").build();
     const document = SwaggerModule.createDocument(app, config, {
       extraModels: [ResponseFormat],
       deepScanRoutes: true,
