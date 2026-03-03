@@ -27,10 +27,10 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app ./
 
 # Expose the application port
 EXPOSE 3000
 
 # Start the application
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
