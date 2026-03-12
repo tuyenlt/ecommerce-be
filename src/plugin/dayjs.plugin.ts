@@ -1,4 +1,3 @@
-
 import * as dayjs from "dayjs";
 import * as weekOfYear from "dayjs/plugin/weekOfYear";
 import * as isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -17,9 +16,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 export default dayjs;
 export type Dayjs = dayjs.Dayjs;
-export const parseDate = (
-  _value: string | number | dayjs.Dayjs | Date | null,
-) => {
+export const parseDate = (_value: string | number | dayjs.Dayjs | Date | null) => {
   if (_value) return dayjs(_value);
   return _value;
 };

@@ -1,10 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-} from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from "@nestjs/common";
 import { LoggerService } from "../../logger/logger.service";
 
 interface IError {
@@ -21,9 +15,7 @@ export class AllExceptionFilter implements ExceptionFilter {
     const request: any = ctx.getRequest();
 
     const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const responseData: any = {
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -55,12 +47,7 @@ export class AllExceptionFilter implements ExceptionFilter {
     response.status(status).json(responseData);
   }
 
-  private logMessage(
-    request: any,
-    message: IError,
-    status: number,
-    exception: any,
-  ) {
+  private logMessage(request: any, message: IError, status: number, exception: any) {
     if (status === 500) {
       this.logger.error(
         `End Request for ${request.path}`,

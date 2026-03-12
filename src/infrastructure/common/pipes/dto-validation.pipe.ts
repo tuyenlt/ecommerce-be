@@ -8,14 +8,9 @@ export class DtoValidationPipe extends ValidationPipe {
           const allErrors: any[] = [];
 
           errors.forEach((error) => {
-            const fieldPath = prefix
-              ? `${prefix}.${error.property}`
-              : error.property;
+            const fieldPath = prefix ? `${prefix}.${error.property}` : error.property;
 
-            if (
-              error.constraints &&
-              Object.keys(error.constraints).length > 0
-            ) {
+            if (error.constraints && Object.keys(error.constraints).length > 0) {
               allErrors.push({
                 fieldName: fieldPath,
                 message: Object.values(error.constraints),

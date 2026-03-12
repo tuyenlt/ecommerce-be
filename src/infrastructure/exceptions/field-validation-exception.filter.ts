@@ -1,9 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpStatus,
-} from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/common";
 import { Response } from "express";
 import { FieldValidationException } from "./field-validation.exception";
 
