@@ -1,6 +1,7 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from "./base.entity";
 import { ETableName, EUserRole } from "../common/constants/db.constant";
+import { RatingEntity } from "./rating.entity";
 
 @Entity(ETableName.USER)
 export class UserEntity extends BaseEntity {
@@ -24,7 +25,7 @@ export class UserEntity extends BaseEntity {
   })
   full_name!: string;
 
-  @Column({ 
+  @Column({
     type: "varchar",
     length: 255,
     select: false,
@@ -64,4 +65,7 @@ export class UserEntity extends BaseEntity {
     default: EUserRole.USER,
   })
   role!: EUserRole;
+
+  @OneToMany(() => RatingEntity, (rating) => rating.user)
+  ratings!: RatingEntity[];
 }

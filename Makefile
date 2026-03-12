@@ -6,64 +6,64 @@ help: ## Hiển thị help
 
 # Development commands
 dev: ## Khởi động development mode
-	docker-compose -f docker-compose.dev.yml up -d
+	docker compose -f docker-compose.dev.yml up -d
 
 dev-build: ## Build và khởi động development mode
-	docker-compose -f docker-compose.dev.yml up -d --build
+	docker compose -f docker-compose.dev.yml up -d --build
 
 dev-down: ## Dừng development mode
-	docker-compose -f docker-compose.dev.yml down
+	docker compose -f docker-compose.dev.yml down
 
 dev-logs: ## Xem logs trong development mode
-	docker-compose -f docker-compose.dev.yml logs -f
+	docker compose -f docker-compose.dev.yml logs -f
 
 dev-restart: ## Restart development mode
-	docker-compose -f docker-compose.dev.yml restart
+	docker compose -f docker-compose.dev.yml restart
 
 # Production commands
 prod: ## Khởi động production mode
-	docker-compose up -d
+	docker compose up -d
 
 prod-build: ## Build và khởi động production mode
-	docker-compose up -d --build
+	docker compose up -d --build
 
 prod-down: ## Dừng production mode
-	docker-compose down
+	docker compose down
 
 prod-logs: ## Xem logs trong production mode
-	docker-compose logs -f
+	docker compose logs -f
 
 prod-restart: ## Restart production mode
-	docker-compose restart
+	docker compose restart
 
 # Database commands
 db-shell: ## Truy cập PostgreSQL shell
-	docker-compose exec postgres psql -U postgres -d ecommerce_db
+	docker compose exec postgres psql -U postgres -d ecommerce_db
 
 migration-run: ## Chạy database migrations
-	docker-compose exec app npm run migration:run
+	docker compose exec app npm run migration:run
 
 migration-revert: ## Rollback migration
-	docker-compose exec app npm run migration:revert
+	docker compose exec app npm run migration:revert
 
 # Utility commands
 clean: ## Xóa tất cả containers, volumes, và images
-	docker-compose -f docker-compose.dev.yml down -v --rmi all
-	docker-compose down -v --rmi all
+	docker compose -f docker-compose.dev.yml down -v --rmi all
+	docker compose down -v --rmi all
 
 clean-volumes: ## Xóa volumes (xóa database data)
-	docker-compose -f docker-compose.dev.yml down -v
-	docker-compose down -v
+	docker compose -f docker-compose.dev.yml down -v
+	docker compose down -v
 
 logs-app: ## Xem logs của app
-	docker-compose logs -f app
+	docker compose logs -f app
 
 logs-db: ## Xem logs của database
-	docker-compose logs -f postgres
+	docker compose logs -f postgres
 
 shell-app: ## Truy cập vào app container
-	docker-compose exec app sh
+	docker compose exec app sh
 
 ps: ## Xem status của containers
-	docker-compose ps
+	docker compose ps
 

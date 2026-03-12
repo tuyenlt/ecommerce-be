@@ -1,5 +1,8 @@
 export enum ETableName {
   USER = "users",
+  PRODUCT = "products",
+  CATEGORY = "categories",
+  RATING = "ratings",
 }
 
 export enum EUserRole {

@@ -1,7 +1,9 @@
-
 import { ApiProperty } from "@nestjs/swagger";
 
 export class BasePaginationResponseDto {
+  @ApiProperty()
+  data: any[];
+
   @ApiProperty()
   totalPages: number;
 

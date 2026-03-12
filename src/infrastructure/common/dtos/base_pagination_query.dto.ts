@@ -7,7 +7,7 @@ export class BasePaginationQueryDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  per_page?: number;
+  limit?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()

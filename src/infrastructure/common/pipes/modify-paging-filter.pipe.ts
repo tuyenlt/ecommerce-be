@@ -17,8 +17,8 @@ export class ModifyPagingFilterPipe implements PipeTransform {
       if (!data.page) {
         data.page = PAGINATION_PAGE_DEFAULT;
       }
-      if (!data.per_page) {
-        data.per_page = PAGINATION_PAGE_SIZE;
+      if (!data.limit) {
+        data.limit = PAGINATION_PAGE_SIZE;
       }
 
       if (!data.sort_by) {

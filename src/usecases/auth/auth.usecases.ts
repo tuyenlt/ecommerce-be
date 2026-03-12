@@ -59,7 +59,17 @@ export class AuthUsecases extends BaseUseCases {
 
   async refreshToken(refresh_token: string) {
     const payload = await this.jwtService.verifyRefreshToken(refresh_token);
-    const user = await this.userRepository.findOneByFilter({ id: payload.id });
+    const user = await this.userRepository.findOneByFilter(
+      { id: payload.id },
+      {
+        id: true,
+        email: true,
+        full_name: true,
+        avatar_url: true,
+        role: true,
+        refresh_token: true,
+      },
+    );
     if (!user) {
       throw new UnauthorizedException(this.i18n.t("auth.INVALID_CREDENTIALS"));
     }

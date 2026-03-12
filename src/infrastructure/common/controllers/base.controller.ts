@@ -1,4 +1,3 @@
-
 import { ApiResponse } from "@nestjs/swagger";
 import {
   BadRequestResponseDto,
@@ -43,10 +42,7 @@ export class BaseController {
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename*=UTF-8''${encodedFilename}`,
-    );
+    res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${encodedFilename}`);
     res.setHeader("Content-Length", buffer.length);
 
     res.send(buffer);

@@ -36,9 +36,11 @@ export class AuthController {
   }
 
   @Post("register")
+  @Public()
   @ApiOperation({ summary: "Register user by email and password" })
   async register(@Body() registerDto: RegisterRequestDto) {
-    return this.authUsecases.getInstance().register(registerDto);
+    const res = await this.authUsecases.getInstance().register(registerDto);
+    return { accessToken: res.accessToken };
   }
 
   @Delete("logout")

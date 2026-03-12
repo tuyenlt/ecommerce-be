@@ -1,7 +1,7 @@
 import { DeepPartial, FindOptionsOrder } from "typeorm";
 
 export interface IBaseRepository<T> {
-  create(data: DeepPartial<T>, queryRunner?: any): Promise<T>;
+  create(data: any, queryRunner?: any): Promise<T>;
   update(id: number, data: DeepPartial<T>, queryRunner?: any): Promise<any>;
   upsert(
     data: any,
