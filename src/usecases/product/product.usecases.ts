@@ -17,11 +17,11 @@ export class ProductUsecases extends BaseUseCases {
   }
 
   async seedJsonData() {
-    const existingProducts = await this.productRepository.findByFilter({});
-    if (existingProducts.length > 0) {
-      console.log("Products already exist");
-      return;
-    }
+    // const existingProducts = await this.productRepository.findByFilter({});
+    // if (existingProducts.length > 0) {
+    //   console.log("Products already exist");
+    //   return;
+    // }
     const filePath = process.cwd() + "/database/seeds/detail_items.jsonl";
     const data = await fs.promises.readFile(filePath, "utf-8");
     const items = data.split("\n").map((line) => {
