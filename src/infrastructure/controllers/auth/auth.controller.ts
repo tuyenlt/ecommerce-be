@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Inject, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiExtraModels, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { AuthUsecases } from "src/usecases/auth/auth.usecases";
@@ -11,8 +11,9 @@ import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
 import { Public } from "src/infrastructure/common/decorators/public.decorator";
 import { AuthResponseDto, UserPayloadResponseDto } from "./dtos/auth_res.dto";
 import { ApiResponseType } from "src/infrastructure/common/swagger/response.decorator";
+import { GoogleOAuth2Guard } from "src/infrastructure/common/guards/google-oauth2.guard";
 
-@Controller("users")
+@Controller("auth")
 @ApiTags("Auth")
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
@@ -73,5 +74,23 @@ export class AuthController {
       avatar_url: user.avatar_url,
       role: user.role,
     };
+  }
+
+  @Get("google")
+  @Public()
+  @UseGuards(GoogleOAuth2Guard)
+  @ApiOperation({ summary: "Google OAuth2 login redirect" })
+  googleOAuth() {}
+
+  @Get("google/call-back")
+  @Public()
+  @UseGuards(GoogleOAuth2Guard)
+  @ApiOperation({ summary: "Google OAuth2 callback" })
+  async googleCallBack(@Req() req: any) {
+    const { user } = req;
+    req.res.setHeader("Set-Cookie", user.refreshTokenCookie);
+    return req.res.redirect(
+      `${process.env.FRONTEND_URL}/login/success?accessToken=${user.accessToken}`,
+    );
   }
 }

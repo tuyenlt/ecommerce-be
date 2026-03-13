@@ -113,6 +113,23 @@ export class AuthUsecases extends BaseUseCases {
     return tokenPayload;
   }
 
+  async validateUserForGoogleOAuth2(profile: any) {
+    const email = profile.emails[0].value;
+    const name = profile.displayName;
+
+    const user = await this.userRepository.findOneByFilter({ email });
+    if (!user) {
+      const newUser = await this.userRepository.create({
+        email,
+        full_name: name,
+        password: "google-oauth2",
+      });
+      return this.issueTokens(newUser);
+    }
+
+    return await this.issueTokens(user);
+  }
+
   private async generateRefreshTokenCookie(refresh_token: string) {
     return `Refresh=${refresh_token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${this.RT_EXPIRES_IN}`;
   }

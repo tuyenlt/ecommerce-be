@@ -14,6 +14,7 @@ import { CustomI18nModule } from "./infrastructure/config/i18n/i18n.module";
 import { FieldValidationExceptionFilter } from "./infrastructure/exceptions/field-validation-exception.filter";
 import { JwtStrategy } from "./infrastructure/common/strategies/jwt.stategy";
 import { JwtAuthGuard } from "./infrastructure/common/guards/jwtAuth.guard";
+import { GoogleStrategy } from "./infrastructure/common/strategies/google-oauth2.stategy";
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { JwtAuthGuard } from "./infrastructure/common/guards/jwtAuth.guard";
       useClass: JwtAuthGuard,
     },
     JwtStrategy,
+    GoogleStrategy,
     EnvironmentConfigModule,
   ],
 })
