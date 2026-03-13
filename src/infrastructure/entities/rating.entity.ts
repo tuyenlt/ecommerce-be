@@ -18,6 +18,9 @@ export class RatingEntity extends BaseEntity {
   @Column({ type: "text", nullable: true })
   comment?: string;
 
+  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  model_rating: number;
+
   @ManyToOne(() => ProductEntity, (product) => product.ratings)
   product!: ProductEntity;
 

@@ -11,7 +11,7 @@ import authUsecasesProvider from "../providers/auth-usecases.provider";
 import ratingUsecasesProvider from "../providers/rating-usecases.provider";
 import productUsecasesProvider from "../providers/product-usecases.provider";
 import categoryUsecasesProvider from "../providers/category-usecases.provider";
-
+import { HttpModule } from "@nestjs/axios";
 @Module({
   imports: [
     LoggerModule,
@@ -20,6 +20,7 @@ import categoryUsecasesProvider from "../providers/category-usecases.provider";
     RepositoriesModule,
     ExceptionsModule,
     BcryptModule,
+    HttpModule,
   ],
   providers: [JwtTokenService],
   exports: [JwtTokenService],

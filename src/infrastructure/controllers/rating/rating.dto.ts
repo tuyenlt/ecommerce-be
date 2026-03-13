@@ -30,3 +30,8 @@ export class CreateRatingDto {
   @IsJSON()
   images: string;
 }
+
+export class TestModelRatingDto {
+  @ApiProperty({ description: "Review comment" })
+  comment: string;
+}
