@@ -15,10 +15,15 @@ export class ProductEntity extends BaseEntity {
   @Column({ type: "text", nullable: true })
   images?: string;
 
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  //   @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  //   base_price?: number;
+
+  //   @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  //   sale_price?: number;
+  @Column({ type: "varchar", length: 20, nullable: true })
   base_price?: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({ type: "varchar", length: 29, nullable: true })
   sale_price?: number;
 
   @Column({ type: "text", nullable: true })
