@@ -16,7 +16,6 @@ import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { RatingUsecases } from "src/usecases/rating/rating.usecases";
 import { CreateRatingDto, ListRatingDto, TestModelRatingDto } from "./rating.dto";
 import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
-import { CurrentUser } from "src/infrastructure/common/decorators/user.decorator";
 import { Public } from "src/infrastructure/common/decorators/public.decorator";
 
 @Controller("ratings")
@@ -46,9 +45,10 @@ export class RatingController extends BaseController {
 
   @Post()
   @ApiBearerAuth()
+  @Public()
   @ApiOperation({ summary: "Create new rating" })
-  async create(@Body() body: CreateRatingDto, @CurrentUser() user) {
-    return this.ratingUseCases.getInstance().createRating(body, user);
+  async create(@Body() body: CreateRatingDto) {
+    return this.ratingUseCases.getInstance().createRating(body, { id: 1 });
   }
 
   @Delete(":id")
