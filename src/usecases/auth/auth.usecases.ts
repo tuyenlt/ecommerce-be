@@ -58,7 +58,7 @@ export class AuthUsecases extends BaseUseCases {
   }
 
   async refreshToken(refresh_token: string) {
-    const payload = await this.jwtService.verifyRefreshToken(refresh_token);
+    const payload = this.jwtService.verifyRefreshToken(refresh_token);
     const user = await this.userRepository.findOneByFilter(
       { id: payload.id },
       {
@@ -81,8 +81,8 @@ export class AuthUsecases extends BaseUseCases {
 
   private async issueTokens(user: UserEntity) {
     const payload = this.createTokenPayload(user);
-    const accessToken = await this.jwtService.signAccessToken(payload);
-    const refreshToken = await this.jwtService.signRefreshToken(payload);
+    const accessToken = this.jwtService.signAccessToken(payload);
+    const refreshToken = this.jwtService.signRefreshToken(payload);
     await this.userRepository.update(user.id, {
       refresh_token: refreshToken,
     });
@@ -123,6 +123,7 @@ export class AuthUsecases extends BaseUseCases {
         email,
         full_name: name,
         password: "google-oauth2",
+        avatar_url: profile.photos[0]?.value || null,
       });
       return this.issueTokens(newUser);
     }

@@ -12,6 +12,7 @@ import ratingUsecasesProvider from "../providers/rating-usecases.provider";
 import productUsecasesProvider from "../providers/product-usecases.provider";
 import categoryUsecasesProvider from "../providers/category-usecases.provider";
 import { HttpModule } from "@nestjs/axios";
+import userUsecasesProvider from "../providers/user-usecases.provider";
 @Module({
   imports: [
     LoggerModule,
@@ -35,6 +36,7 @@ export class UsecasesProxyModule extends ProxyModule {
         ratingUsecasesProvider,
         productUsecasesProvider,
         categoryUsecasesProvider,
+        userUsecasesProvider,
       ],
       exports: Object.values(ProxyModule),
     };

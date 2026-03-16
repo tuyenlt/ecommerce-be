@@ -15,9 +15,15 @@ import { FieldValidationExceptionFilter } from "./infrastructure/exceptions/fiel
 import { JwtStrategy } from "./infrastructure/common/strategies/jwt.stategy";
 import { JwtAuthGuard } from "./infrastructure/common/guards/jwtAuth.guard";
 import { GoogleStrategy } from "./infrastructure/common/strategies/google-oauth2.stategy";
+import { join } from "path";
+import { ServeStaticModule } from "@nestjs/serve-static";
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "..", "..", "uploads"),
+      serveRoot: "/uploads",
+    }),
     PassportModule,
     JwtModule.register({
       secret: process.env.secret,

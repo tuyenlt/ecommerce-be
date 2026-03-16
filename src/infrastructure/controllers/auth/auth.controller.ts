@@ -4,8 +4,7 @@ import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { AuthUsecases } from "src/usecases/auth/auth.usecases";
 import { LoginByMailReqDto } from "./dtos/login_by_mail_req.dto";
 import { RegisterRequestDto } from "./dtos/register_request.dto";
-import { CurrentUser } from "src/infrastructure/common/decorators/user.decorator";
-import { TokenPayload } from "src/domain/model/auth";
+import { CurrentUser, UserContext } from "src/infrastructure/common/decorators/user.decorator";
 import { UsecasesProxyModule } from "src/infrastructure/usecases-proxy/modules/usecases-proxy.module";
 import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
 import { Public } from "src/infrastructure/common/decorators/public.decorator";
@@ -47,7 +46,7 @@ export class AuthController {
   @Delete("logout")
   @ApiOperation({ summary: "Logout user" })
   @ApiResponse({ status: 200, description: "Logout successful" })
-  async logout(@CurrentUser() user: TokenPayload, @Req() req: any) {
+  async logout(@UserContext() user: CurrentUser, @Req() req: any) {
     await this.authUsecases.getInstance().logout(user.id);
     req.res.setHeader("Set-Cookie", "");
     return { message: "Logout successful" };
@@ -66,7 +65,7 @@ export class AuthController {
   @Post("is-authenticated")
   @ApiOperation({ summary: "Check if user is authenticated" })
   @ApiResponseType(UserPayloadResponseDto, false)
-  async isAuthenticated(@CurrentUser() user: TokenPayload) {
+  async isAuthenticated(@UserContext() user: CurrentUser) {
     return {
       id: user.id,
       email: user.email,

@@ -33,13 +33,6 @@ export class ProductController extends BaseController {
     super();
   }
 
-  @Get("seed")
-  @Public()
-  async seedData() {
-    await this.productUseCases.getInstance().seedJsonData();
-    return { message: "Data seeded successfully" };
-  }
-
   @Get()
   @Public()
   @ApiOperation({ summary: "Get list of products" })

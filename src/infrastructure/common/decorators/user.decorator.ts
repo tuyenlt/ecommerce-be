@@ -8,7 +8,7 @@ export type CurrentUser = {
   role?: string;
 };
 
-export const CurrentUser = createParamDecorator((data: unknown, ctx: ExecutionContext) => {
+export const UserContext = createParamDecorator((data: unknown, ctx: ExecutionContext) => {
   const request = ctx.switchToHttp().getRequest();
   const user: CurrentUser = {
     id: request.user.id,

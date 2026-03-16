@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from "./base.entity";
 import { ProductEntity } from "./product.entity";
 import { ETableName } from "../common/constants/db.constant";
@@ -14,12 +14,17 @@ export class CategoryEntity extends BaseEntity {
   @Column({ type: "varchar", length: 255, nullable: true })
   image_url?: string;
 
-  @ManyToOne(() => CategoryEntity, (category) => category.subCategories, { nullable: true })
-  @JoinColumn({ name: "parent_category_id" })
-  parentCategory!: CategoryEntity;
+  @Column({ type: "varchar", length: 255, nullable: true })
+  path: string;
 
-  @OneToMany(() => CategoryEntity, (subCategory) => subCategory.parentCategory)
-  subCategories!: CategoryEntity[];
+  @Column({ type: "varchar", length: 255 })
+  slug: string;
+
+  @Column({ type: "int", nullable: false, default: 1 })
+  depth: number;
+
+  @Column({ type: "int", nullable: true })
+  parent_category_id!: number;
 
   @OneToMany(() => ProductEntity, (product) => product.category)
   products!: ProductEntity[];

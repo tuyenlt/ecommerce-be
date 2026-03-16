@@ -14,7 +14,7 @@ import { BaseController } from "src/infrastructure/common/controllers/base.contr
 import { UsecasesProxyModule } from "src/infrastructure/usecases-proxy/modules/usecases-proxy.module";
 import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { RatingUsecases } from "src/usecases/rating/rating.usecases";
-import { CreateRatingDto, ListRatingDto, TestModelRatingDto } from "./rating.dto";
+import { CreateRatingDto, ListRatingDto } from "./rating.dto";
 import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
 import { Public } from "src/infrastructure/common/decorators/public.decorator";
 
@@ -56,11 +56,5 @@ export class RatingController extends BaseController {
   @ApiOperation({ summary: "Delete rating" })
   async delete(@Param("id") id: number) {
     return this.ratingUseCases.getInstance().deleteRating(id);
-  }
-
-  @Post("/test-model")
-  @Public()
-  async testModel(@Body() body: TestModelRatingDto) {
-    return this.ratingUseCases.getInstance().getModelRating(body.comment);
   }
 }
