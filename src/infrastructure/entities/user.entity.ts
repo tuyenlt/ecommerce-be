@@ -2,6 +2,8 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from "./base.entity";
 import { ETableName, EUserRole } from "../common/constants/db.constant";
 import { RatingEntity } from "./rating.entity";
+import { CartEntity } from "./cart.entity";
+import { OrderEntity } from "./order.entity";
 
 @Entity(ETableName.USER)
 export class UserEntity extends BaseEntity {
@@ -68,4 +70,10 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => RatingEntity, (rating) => rating.user)
   ratings!: RatingEntity[];
+
+  @OneToMany(() => CartEntity, (cart) => cart.user)
+  carts!: CartEntity[];
+
+  @OneToMany(() => OrderEntity, (order) => order.user)
+  orders!: OrderEntity[];
 }

@@ -9,13 +9,48 @@ import { CategoryEntity } from "../entities/category.entity";
 import { RatingEntity } from "../entities/rating.entity";
 import { CategoryRepository } from "./category.repository";
 import { ProductRepository } from "./product.repository";
+import { CartEntity } from "../entities/cart.entity";
+import { OrderEntity } from "../entities/order.entity";
+import { CartRepository } from "./cart.repository";
+import { OrderRepository } from "./order.repository";
+import { CartItemEntity } from "../entities/cart-item.entity";
+import { OrderItemEntity } from "../entities/order-item.entity";
+import { CartItemRepository } from "./cart-item.repository";
+import { OrderItemRepository } from "./order-item.repository";
 
 @Module({
   imports: [
     TypeOrmConfigModule,
-    TypeOrmModule.forFeature([UserEntity, RatingEntity, ProductEntity, CategoryEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      RatingEntity,
+      ProductEntity,
+      CategoryEntity,
+      CartEntity,
+      OrderEntity,
+      CartItemEntity,
+      OrderItemEntity,
+    ]),
   ],
-  providers: [UserRepository, RatingRepository, ProductRepository, CategoryRepository],
-  exports: [UserRepository, RatingRepository, ProductRepository, CategoryRepository],
+  providers: [
+    UserRepository,
+    RatingRepository,
+    ProductRepository,
+    CategoryRepository,
+    CartRepository,
+    OrderRepository,
+    CartItemRepository,
+    OrderItemRepository,
+  ],
+  exports: [
+    UserRepository,
+    RatingRepository,
+    ProductRepository,
+    CategoryRepository,
+    CartRepository,
+    OrderRepository,
+    CartItemRepository,
+    OrderItemRepository,
+  ],
 })
 export class RepositoriesModule {}
