@@ -4,6 +4,7 @@ import { ICartRepository } from "src/domain/repositories/cart-repository.interfa
 import { I18nService } from "nestjs-i18n";
 import { ICartItemRepository } from "src/domain/repositories/cart-item-repository.interface";
 import { IOrderRepository } from "src/domain/repositories/order-repository.interface";
+import { IProductRepository } from "src/domain/repositories/product-repository.interdace";
 
 export class CartUsecases extends BaseUseCases {
   constructor(

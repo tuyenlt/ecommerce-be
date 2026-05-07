@@ -58,7 +58,6 @@ services:
       - ecommerce-network-dev
     volumes:
       - .:/app
-      - /app/node_modules
       - ./logs:/app/logs
     extra_hosts:
       - "host.docker.internal:host-gateway"
