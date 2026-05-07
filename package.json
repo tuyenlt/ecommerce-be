@@ -23,7 +23,7 @@
     "migration:generate": "npm run typeorm -- --d src/infrastructure/config/typeorm/typeorm.config.ts migration:generate ./database/migrations/$npm_config_name",
     "migration:create": "npm run typeorm -- migration:create ./database/migrations/$npm_config_name",
     "migration:revert": "npm run typeorm -- --d src/infrastructure/config/typeorm/typeorm.config.ts migration:revert",
-    "seed": "npm run build && ts-node ./node_modules/typeorm-extension/dist/cli/index.js seed -d src/infrastructure/config/typeorm/typeorm.config.ts",
+    "seed": "ts-node  ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d src/infrastructure/config/typeorm/typeorm.config.ts",
     "seed:file": "npm run build && ts-node ./node_modules/typeorm-extension/dist/cli/index.js seed -d src/infrastructure/config/typeorm/typeorm.config.ts -s",
     "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
     "docker:dev:build": "docker-compose -f docker-compose.dev.yml up -d --build",

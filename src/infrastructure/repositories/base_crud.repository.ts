@@ -1,357 +1,240 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import {
-  Brackets,
-  FindOptionsOrder,
+  DeepPartial,
+  DeleteResult,
+  EntityManager,
+  FindManyOptions,
   FindOptionsWhere,
-  ObjectLiteral,
+  QueryDeepPartialEntity,
   QueryRunner,
   Repository,
-  SaveOptions,
+  UpdateResult,
 } from "typeorm";
-import { escapeRegExp } from "../common/utils/escape_reg_exp.util";
 import { BaseEntity } from "../entities/base.entity";
-import { castArray } from "lodash";
-import { randomAlphabet } from "../common/utils/common.util";
-import { CONDITION_FILTER_ENUM, QUERY_OPERATOR_ENUM } from "../common/constants/query.constant";
 import { IBaseRepository } from "src/domain/repositories/base-repository.interface";
-import { ORDER_DIRECTION } from "../common/constants/common.constant";
+import { extend } from "lodash";
+import { applyLikeFilter } from "../common/utils/pagination.util";
 /**
  * Base repository class for projects.
  */
 @Injectable()
-export abstract class BaseCrudRepository<E extends BaseEntity> implements IBaseRepository<E> {
-  constructor(
-    private readonly repository: Repository<E>,
-    private readonly alias: string,
-  ) {}
+export abstract class BaseCrudRepository<T extends BaseEntity> implements IBaseRepository<T> {
+  notFoundMessage = "Record not found";
+  constructor(protected readonly repository: Repository<T>) {}
 
-  async create(data, queryRunner?: QueryRunner, options: SaveOptions = {}) {
+  create(data: DeepPartial<T>, queryRunner?: QueryRunner): Promise<T> {
     if (queryRunner) {
-      return await queryRunner.manager
-        .getRepository(this.repository.target)
-        .save(data, { ...options });
+      return queryRunner.manager.save(this.repository.create(data));
     }
-    return await this.repository.save(data, { ...options });
+    return this.repository.save(data);
   }
 
-  async update(id: number, data, queryRunner?: QueryRunner) {
-    if (queryRunner) {
-      return await queryRunner.manager.getRepository(this.alias).update(id, data);
-    }
-    return await this.repository.update(id, data);
-  }
-
-  async updateBy(where: FindOptionsWhere<E>, data, queryRunner?: QueryRunner) {
-    if (queryRunner) {
-      return await queryRunner.manager.getRepository(this.repository.target).update(where, data);
-    }
-    return await this.repository.update(where, data);
-  }
-
-  async upsert(data, queryRunner?: QueryRunner) {
+  async createMany(datas: DeepPartial<T>[], queryRunner?: QueryRunner): Promise<T[]> {
     const repo = queryRunner
       ? queryRunner.manager.getRepository(this.repository.target)
       : this.repository;
-    const newData = repo.create(data);
-    return await repo.save(newData);
+    const entities: T[] = [];
+    for (const data of datas) {
+      const entity = repo.create(data);
+      entities.push(entity);
+    }
+    return repo.save(entities);
   }
 
-  async findByFilter(
-    filter: any,
-    select?: { [key: string]: boolean },
-    relations?: string[],
-    order: { [key: string]: "ASC" | "DESC" } = { id: "ASC" },
-  ) {
-    return await this.repository.find({
-      where: filter,
-      select: select as any,
-      relations: relations,
-      order: order as FindOptionsOrder<E>,
-    });
+  async save(entity: T, queryRunner?: QueryRunner): Promise<T> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(this.repository.target)
+      : this.repository;
+    return repo.save(entity);
   }
 
-  async findOneByFilter(
-    filter: any,
-    select?: { [key: string]: boolean },
-    relations?: string[],
-    order?: FindOptionsOrder<E>,
-    withDeleted?: boolean,
-  ) {
-    return await this.repository.findOne({
-      where: filter,
-      select: select as any,
-      relations: relations,
+  async saveMany(entities: T[], queryRunner?: QueryRunner): Promise<T[]> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(this.repository.target)
+      : this.repository;
+    return repo.save(entities);
+  }
+
+  getOne(options: FindOptions<T>): Promise<T | null> {
+    const { relations, loadEagerRelations, order, withDeleted, select, where } = options;
+    return this.repository.findOne({
+      where,
+      relations,
+      loadEagerRelations,
       order,
-      withDeleted: withDeleted || false,
+      withDeleted,
+      select,
     });
   }
 
-  async getListsWithGetRawMany(
-    query,
-    callbackQuery: (queryBuilder) => any,
-    callbackSelectData: (data) => any,
-  ) {
-    const limit = +query?.per_page || 10;
-    const page = +query?.page || 1;
-    const queryBuilder = this.repository.createQueryBuilder(this.alias);
-    const [dataLists, total] = await Promise.all([
-      callbackQuery(queryBuilder)
-        .offset((page - 1) * limit)
-        .limit(limit)
-        .getRawMany(),
-      queryBuilder.getCount(),
-    ]);
+  async getOneOrFail(options: FindOrFailOptions<T>): Promise<T> {
+    const errorMessage = options?.errorMessage || this.notFoundMessage;
+    const where = options.where;
+    const entity = await this.getOne({ ...options, where });
+    if (!entity) throw new NotFoundException(errorMessage);
+    return entity;
+  }
 
-    return {
-      total,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
+  getOneById(id: number, options?: Partial<FindOptions<T>>): Promise<T | null> {
+    const where = { id } as FindOptionsWhere<T>;
+    return this.getOne({ ...options, where });
+  }
+
+  async getOneByIdOrFail(id: number, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
+    const errorMessage = options?.errorMessage || this.notFoundMessage;
+    const entity = await this.getOneById(id, options);
+    if (!entity) throw new NotFoundException(errorMessage);
+    return entity;
+  }
+
+  async getOneOrCreate(options: FindOptions<T>, data?: DeepPartial<T>): Promise<T> {
+    const entity = await this.getOne(options);
+    if (!entity) {
+      if (!data) {
+        throw new InternalServerErrorException("Missing creation data");
+      }
+      return this.create(data);
+    }
+    return entity;
+  }
+
+  getAll(options: Partial<FindManyOptions<T>>): Promise<T[]> {
+    const { relations, order, loadEagerRelations, withDeleted, select, take } = options;
+    const where = options.where;
+    return this.repository.find({
+      where,
+      relations,
+      order,
+      loadEagerRelations,
+      withDeleted,
+      select,
+      take,
+    });
+  }
+
+  async getAllPaginated(options: FindPaginatedOptions<T>): Promise<IPaginationResponse<T>> {
+    const {
       limit,
-      dataList: callbackSelectData(dataLists),
-    };
-  }
+      page = 1,
+      where = applyLikeFilter(options.filter),
+      select,
+      withDeleted,
+      loadEagerRelations,
+      order,
+      relations,
+    } = options;
 
-  async getListsWithGetMany(
-    query,
-    callbackQuery: (queryBuilder) => any,
-    callbackSelectData: (data) => any,
-  ) {
-    const limit = +query?.per_page || 10;
-    const page = +query?.page || 1;
-    const queryBuilder = this.repository.createQueryBuilder(this.alias);
-    const [dataLists, total] = await Promise.all([
-      callbackQuery(queryBuilder)
-        .offset((page - 1) * limit)
-        .limit(limit)
-        .getMany(),
-      queryBuilder.getCount(),
-    ]);
+    const take = limit === undefined || limit <= 0 ? undefined : limit;
+    const skip = take === undefined ? undefined : take * (+page - 1);
+    const findAndCountOptions = {
+      where: where,
+      order,
+      relations,
+      take,
+      skip,
+      loadEagerRelations,
+      withDeleted,
+      select,
+    };
+    const [data, total] = await this.repository.findAndCount(findAndCountOptions);
 
     return {
-      total,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      limit,
-      dataList: callbackSelectData(dataLists),
-    };
-  }
-
-  async getListsWithRawQuery(
-    query,
-    callbackQuery: (queryBuilder) => any,
-    callbackSelectData: (data) => any,
-    option?: {
-      dataBinding?: string[];
-    },
-  ) {
-    const queryBuilder = this.repository.createQueryBuilder(this.alias);
-    const sqlQuery = callbackQuery(queryBuilder);
-    const totalCountQuery = `
-          SELECT COUNT(*) AS total_count
-          FROM (
-            ${sqlQuery.getSql()}
-          ) AS subquery
-        `;
-    const [dataLists, totals] = await Promise.all([
-      this.repository.query(
-        sqlQuery
-          .offset((query?.page - 1) * query?.per_page)
-          .limit(query?.per_page)
-          .getSql(),
-        option?.dataBinding,
-      ),
-      this.repository.query(totalCountQuery, option?.dataBinding),
-    ]);
-
-    const total = +totals[0].total_count;
-    return {
-      total,
-      totalPages: Math.ceil(total / query?.per_page),
-      currentPage: query?.page,
-      limit: query?.per_page,
-      dataList: callbackSelectData(dataLists),
-    };
-  }
-
-  async delete(id: number, queryRunner?: QueryRunner) {
-    if (queryRunner) {
-      return await queryRunner.manager.getRepository(this.repository.target).softDelete(id);
-    }
-    return await this.repository.softDelete(id);
-  }
-
-  async bulkDelete(ids: number[], queryRunner?: QueryRunner) {
-    if (queryRunner) {
-      return await queryRunner.manager.getRepository(this.repository.target).softDelete(ids);
-    }
-    return await this.repository.softDelete(ids);
-  }
-
-  async deleteBy(where: FindOptionsWhere<E>, queryRunner?: QueryRunner) {
-    return await this.repository
-      .createQueryBuilder(this.alias, queryRunner)
-      .softDelete()
-      .where(where)
-      .execute();
-  }
-
-  async hardDeleteBy(where: FindOptionsWhere<E>, queryRunner?: QueryRunner) {
-    return await this.repository
-      .createQueryBuilder(this.alias, queryRunner)
-      .delete()
-      .where(where)
-      .execute();
-  }
-
-  async getOneByFilter(callbackQuery: (queryBuilder) => any, callbackSelectData: (data) => any) {
-    const queryBuilder = this.repository.createQueryBuilder(this.alias);
-    const [data] = await Promise.all([callbackQuery(queryBuilder).getOne()]);
-    if (!data) {
-      return null;
-    }
-
-    return {
-      record: callbackSelectData(data),
-    };
-  }
-
-  async exists(
-    filter: FindOptionsWhere<E> | FindOptionsWhere<E>[],
-    includeSoftDeleted: boolean = false,
-  ): Promise<boolean> {
-    const queryBuilder = this.repository.createQueryBuilder(this.alias);
-
-    if (includeSoftDeleted) {
-      queryBuilder.withDeleted();
-    }
-
-    queryBuilder.where(filter);
-
-    return await queryBuilder.getExists();
-  }
-
-  async hardDelete(id: number | number[], queryRunner?: QueryRunner) {
-    if (queryRunner) {
-      return await queryRunner.manager.getRepository(this.repository.target).delete(id);
-    }
-    return await this.repository.delete(id);
-  }
-
-  /**
-   * build query builder
-   **/
-  setSearch(queryBuilder, searchFields: string[], keyword: string) {
-    queryBuilder.where(
-      new Brackets((qb) => {
-        searchFields.forEach((key) =>
-          qb.orWhere(`${key} ~* :keyword`, { keyword: escapeRegExp(keyword) }),
-        );
-      }),
-    );
-    return queryBuilder;
-  }
-
-  /* Sort
-   */
-  setSort(queryBuilder, sort: { [key: string]: ORDER_DIRECTION }) {
-    Object.entries(sort).forEach(([key, value]) => queryBuilder.addOrderBy(`${key}`, value));
-    return queryBuilder;
-  }
-
-  /* Filter
-   */
-  setFilter(
-    queryBuilder,
-    filter: {
-      [key: string]: {
-        value: any;
-        operator: QUERY_OPERATOR_ENUM;
-      };
-    },
-    conditionFilter: "AND" | "OR" = "AND",
-  ) {
-    if (filter) {
-      Object.entries(filter).forEach((item) =>
-        this._processFilter(queryBuilder, item, conditionFilter),
-      );
-    }
-    return queryBuilder;
-  }
-
-  private _processFilter(
-    queryBuilder,
-    [filterKey, filterValues]: [
-      string,
-      {
-        value: any;
-        operator: QUERY_OPERATOR_ENUM;
+      data,
+      pagination: {
+        limit: limit === -1 ? total : limit,
+        page: limit === -1 ? 1 : page,
+        total,
       },
-    ],
-    conditionFilter,
-  ) {
-    const { sqlRaw, queryParams } = this._processFilterByOperator(
-      filterValues.operator,
-      filterKey,
-      filterValues.value,
-    );
-    if (conditionFilter === CONDITION_FILTER_ENUM.AND)
-      sqlRaw && queryBuilder.andWhere(sqlRaw, queryParams);
-    else sqlRaw && queryBuilder.orWhere(sqlRaw, queryParams);
-    return queryBuilder;
+    };
   }
 
-  private _processFilterByOperator(
-    operator: QUERY_OPERATOR_ENUM,
-    key: string,
-    filterValues: string,
+  async update(
+    options: FindOrFailOptions<T>,
+    data: QueryDeepPartialEntity<T>,
+    queryRunner?: QueryRunner,
+  ): Promise<T> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(this.repository.target)
+      : this.repository;
+    const entity = await this.getOneOrFail(options);
+    const newEntity = extend<T>(entity, data);
+    return repo.save(newEntity);
+  }
+
+  async updateById(
+    id: number,
+    data: QueryDeepPartialEntity<T>,
+    options?: Partial<FindOrFailOptions<T>>,
+  ): Promise<T> {
+    const entity = await this.getOneByIdOrFail(id, options);
+    const newEntity = extend<T>(entity, data);
+    return this.repository.save(newEntity);
+  }
+
+  async remove(options: FindOrFailOptions<T>): Promise<T> {
+    const entity = await this.getOneOrFail(options);
+    return this.repository.remove(entity);
+  }
+
+  async deleteMany(
+    options: string | string[] | number | number[] | Date | Date[] | FindOptionsWhere<T>,
   ) {
-    let sqlRaw: string;
-    let queryParams: ObjectLiteral;
-    const randomKeyVariableBinding: string = randomAlphabet(10) + Date.now();
+    return this.repository.delete(options);
+  }
 
-    if (operator === QUERY_OPERATOR_ENUM.IN) {
-      sqlRaw = `${key} IN (:...${randomKeyVariableBinding})`;
-      queryParams = { [randomKeyVariableBinding]: castArray(filterValues) };
-      (!Array.isArray(filterValues) || filterValues.length === 0) && (sqlRaw = null);
-      return { sqlRaw, queryParams };
-    }
+  async removeById(id: number, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
+    const entity = await this.getOneByIdOrFail(id, options);
+    return this.repository.remove(entity);
+  }
 
-    if (operator === QUERY_OPERATOR_ENUM.NOT_IN) {
-      sqlRaw = `${key} NOT IN (:...${randomKeyVariableBinding})`;
-      queryParams = { [randomKeyVariableBinding]: castArray(filterValues) };
-      (!Array.isArray(filterValues) || filterValues.length === 0) && (sqlRaw = null);
-      return { sqlRaw, queryParams };
-    }
+  removeAll(): Promise<DeleteResult> {
+    return this.repository.delete({});
+  }
 
-    if (operator === QUERY_OPERATOR_ENUM.GTE) {
-      sqlRaw = `${key} >= :${randomKeyVariableBinding}`;
-      queryParams = { [randomKeyVariableBinding]: filterValues };
-      return { sqlRaw, queryParams };
-    }
-    if (operator === QUERY_OPERATOR_ENUM.LTE) {
-      sqlRaw = `${key} <= :${randomKeyVariableBinding}`;
-      queryParams = { [randomKeyVariableBinding]: filterValues };
-      return { sqlRaw, queryParams };
-    }
-    if (operator === QUERY_OPERATOR_ENUM.GT) {
-      sqlRaw = `${key} > :${randomKeyVariableBinding}`;
-      queryParams = { [randomKeyVariableBinding]: filterValues };
-      return { sqlRaw, queryParams };
-    }
-    if (operator === QUERY_OPERATOR_ENUM.LT) {
-      sqlRaw = `${key} < :${randomKeyVariableBinding}`;
-      queryParams = { [randomKeyVariableBinding]: filterValues };
-      return { sqlRaw, queryParams };
-    }
+  async softRemove(options: FindOrFailOptions<T>): Promise<T> {
+    const entity = await this.getOneOrFail(options);
+    return this.repository.softRemove(entity);
+  }
 
-    if (operator === QUERY_OPERATOR_ENUM.LIKE) {
-      sqlRaw = `${key} LIKE :${key}`;
-      queryParams = { [key]: `%${filterValues}%` };
-      return { sqlRaw, queryParams };
-    }
+  async softRemoveMany(options: FindOrFailOptions<T>): Promise<T[]> {
+    const entities = await this.getAll(options);
+    return this.repository.softRemove(entities);
+  }
 
-    sqlRaw = `${key} = :${randomKeyVariableBinding}`;
-    queryParams = { [randomKeyVariableBinding]: filterValues };
-    return { sqlRaw, queryParams };
+  async softRemoveById(id: number, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
+    const entity = await this.getOneByIdOrFail(id, options);
+    return this.repository.softRemove(entity);
+  }
+
+  softRemoveAll(): Promise<DeleteResult> {
+    return this.repository.softDelete({});
+  }
+
+  count(options: Partial<FindManyOptions<T>>) {
+    return this.repository.count(options);
+  }
+
+  getQueryBuilder(alias?: string) {
+    return this.repository.createQueryBuilder(alias);
+  }
+
+  increment(where: FindOptionsWhere<T>, field: string, value: number): Promise<UpdateResult> {
+    return this.repository.increment(where, field, value);
+  }
+
+  decrement(where: FindOptionsWhere<T>, field: string, value: number): Promise<UpdateResult> {
+    return this.repository.decrement(where, field, value);
+  }
+
+  query<K = any>(queryString: string, parameters?: any[]): Promise<K> {
+    return this.repository.query(queryString, parameters);
+  }
+
+  transaction<T>(runInTransaction: (entityManager: EntityManager) => Promise<T>) {
+    return this.repository.manager.transaction(runInTransaction);
+  }
+
+  existsBy(where: FindOptionsWhere<T> | FindOptionsWhere<T>[]): Promise<boolean> {
+    return this.repository.existsBy(where);
   }
 }

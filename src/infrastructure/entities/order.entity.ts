@@ -1,5 +1,10 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
-import { EOrderStatus, EPaymentStatus, ETableName } from "../common/constants/db.constant";
+import {
+  EOrderStatus,
+  EPaymentMethod,
+  EPaymentStatus,
+  ETableName,
+} from "../common/constants/db.constant";
 import { BaseEntity } from "./base.entity";
 import { UserEntity } from "./user.entity";
 import { OrderItemEntity } from "./order-item.entity";
@@ -26,6 +31,12 @@ export class OrderEntity extends BaseEntity {
     default: EPaymentStatus.UNPAID,
   })
   payment_status!: EPaymentStatus;
+
+  @Column({ name: "shipping_fee", type: "decimal", precision: 15, scale: 2, default: 0 })
+  shipping_fee!: string;
+
+  @Column({ name: "payment_method", type: "enum", enum: EPaymentMethod, nullable: true })
+  payment_method!: EPaymentMethod;
 
   @Column({ name: "address", type: "varchar", length: 255 })
   address!: string;

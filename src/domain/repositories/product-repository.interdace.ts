@@ -1,8 +1,8 @@
 import { ProductEntity } from "src/infrastructure/entities/product.entity";
 import { IBaseRepository } from "./base-repository.interface";
 import { GetListProductDto } from "src/infrastructure/controllers/product/product.dto";
-import { BasePaginationResponseDto } from "src/infrastructure/common/dtos/base_pagination_response.dto";
+import { PaginationDto } from "src/infrastructure/common/dtos/base.dto";
 
 export interface IProductRepository extends IBaseRepository<ProductEntity> {
-  getListPagination(query: GetListProductDto): Promise<BasePaginationResponseDto>;
+  getListPagination(query: GetListProductDto): Promise<PaginationDto>;
 }

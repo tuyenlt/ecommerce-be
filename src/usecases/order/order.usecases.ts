@@ -16,7 +16,7 @@ export class OrderUsecases extends BaseUseCases {
   }
 
   async getListOrderOfUser(userId: number) {
-    return this.orderRepository.findByFilter({ user_id: userId });
+    return this.orderRepository.getAll({ where: { user_id: userId } });
   }
 
   async getFlattenOrderItemsOfUser(userId: number) {

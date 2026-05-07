@@ -24,22 +24,28 @@ export class ProductUsecases extends BaseUseCases {
   }
 
   async addProduct(body: ProductDto): Promise<ProductEntity> {
-    const product = this.productRepository.create(body);
-    return await this.productRepository.create(product);
+    return await this.productRepository.create(body);
   }
 
   async updateProduct(id: number, body: ProductDto) {
     await this.findOneByIdOrFail(id);
-    await this.productRepository.update(id, body);
+    await this.productRepository.update(
+      {
+        where: {
+          id,
+        },
+      },
+      body,
+    );
   }
 
   async deleteProduct(id: number) {
     await this.findOneByIdOrFail(id);
-    await this.productRepository.delete(id);
+    await this.productRepository.removeById(id);
   }
 
   private async findOneByIdOrFail(id: number): Promise<ProductEntity> {
-    const product = await this.productRepository.findOneByFilter({ id });
+    const product = await this.productRepository.getOne({ where: { id } });
     if (!product) {
       throw new BadRequestException(this.i18n.t("product.PRODUCT_NOT_FOUND"));
     }

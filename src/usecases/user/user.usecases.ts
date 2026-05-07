@@ -17,14 +17,10 @@ export class UserUseCases extends BaseUseCases {
     const user = await this.findOneOrFail(userId);
     user.full_name = dto.full_name || user.full_name;
     user.phone = dto.phone || user.phone;
-    await this.userRepository.update(userId, user);
+    await this.userRepository.updateById(userId, user);
   }
 
   private async findOneOrFail(userId: number) {
-    const user = await this.userRepository.findOneByFilter({ id: userId });
-    if (!user) {
-      throw new Error(this.i18n.t("user.not_found"));
-    }
-    return user;
+    return await this.userRepository.getOneByIdOrFail(userId);
   }
 }

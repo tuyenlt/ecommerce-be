@@ -1,12 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import { IsJSON, IsNumber, IsOptional, IsString, MaxLength } from "class-validator";
-import { BasePaginationQueryDto } from "src/infrastructure/common/dtos/base_pagination_query.dto";
-import { BasePaginationResponseDto } from "src/infrastructure/common/dtos/base_pagination_response.dto";
+import { PaginationDto } from "src/infrastructure/common/dtos/base.dto";
 import { ProductEntity } from "src/infrastructure/entities/product.entity";
-import { DeepPartial } from "typeorm";
 
-export class GetListProductDto extends BasePaginationQueryDto {
+export class GetListProductDto extends PaginationDto<ProductEntity> {
   @ApiPropertyOptional({ description: "Name of the product" })
   @IsOptional()
   name: string;
@@ -26,21 +24,6 @@ export class GetListProductDto extends BasePaginationQueryDto {
   @Transform(({ value }) => Number(value))
   @IsNumber()
   maxPrice: number;
-}
-
-export class ListProductResponseDto extends BasePaginationResponseDto {
-  @ApiProperty({
-    example: [
-      {
-        id: 1,
-        name: "Product 1",
-        base_price: 100,
-        sale_price: 80,
-        images: ["image1.jpg", "image2.jpg"],
-      },
-    ],
-  })
-  data: DeepPartial<ProductEntity>[];
 }
 
 export class ProductDto {

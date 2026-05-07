@@ -14,7 +14,7 @@ dev-build: ## Build và khởi động development mode
 dev-down: ## Dừng development mode
 	docker compose -f docker-compose.dev.yml down
 
-dev-logs: ## Xem logs trong development mode
+dev-logs: ## Xem logs trong development mod 
 	docker compose -f docker-compose.dev.yml logs -f
 
 dev-restart: ## Restart development mode

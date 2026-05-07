@@ -1,9 +1,10 @@
-import { ApiProperty, ApiPropertyOptional, OmitType } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import { IsJSON, IsNumber, IsOptional } from "class-validator";
-import { BasePaginationQueryDto } from "src/infrastructure/common/dtos/base_pagination_query.dto";
+import { PaginationDto } from "src/infrastructure/common/dtos/base.dto";
+import { RatingEntity } from "src/infrastructure/entities/rating.entity";
 
-export class ListRatingDto extends OmitType(BasePaginationQueryDto, ["keyword"]) {
+export class ListRatingDto extends PaginationDto<RatingEntity> {
   @ApiPropertyOptional({ description: "ID of the product to filter ratings" })
   @IsOptional()
   @Transform(({ value }) => Number(value))

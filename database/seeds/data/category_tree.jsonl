@@ -1,0 +1,76 @@
+{"id": 1, "name": "Gia dụng nhà bếp", "url": "gia-dung-nha-bep", "parentId": null, "originalUrl": "do-gia-dung"}
+{"id": 2, "name": "Nồi chiên không dầu", "url": "noi-chien-khong-dau", "parentId": 1, "originalUrl": null}
+{"id": 3, "name": "Nồi cơm điện", "url": "noi-com-dien", "parentId": 1, "originalUrl": null}
+{"id": 4, "name": "Nồi cơm điện mini", "url": "mini", "parentId": 3, "originalUrl": null}
+{"id": 5, "name": "Nồi cơm điện cao tần", "url": "cao-tan", "parentId": 3, "originalUrl": null}
+{"id": 6, "name": "Nồi cơm điện tử", "url": "dien-tu", "parentId": 3, "originalUrl": null}
+{"id": 7, "name": "Nồi cơm nắp rời/nắp gài", "url": "nap-roi-nap-gai", "parentId": 3, "originalUrl": null}
+{"id": 8, "name": "Máy làm sữa hạt", "url": "may-lam-sua-hat", "parentId": 1, "originalUrl": null}
+{"id": 9, "name": "Máy ép trái cây", "url": "may-ep-trai-cay", "parentId": 1, "originalUrl": null}
+{"id": 10, "name": "Máy ép chậm", "url": "ep-cham", "parentId": 9, "originalUrl": null}
+{"id": 11, "name": "Máy ép nhanh", "url": "ep-nhanh", "parentId": 9, "originalUrl": null}
+{"id": 12, "name": "Máy ép cam", "url": "ep-cam", "parentId": 9, "originalUrl": "may-ep-cam"}
+{"id": 13, "name": "Máy xay sinh tố", "url": "may-xay-sinh-to", "parentId": 1, "originalUrl": null}
+{"id": 14, "name": "Máy xay sinh tố đa năng", "url": "da-nang", "parentId": 13, "originalUrl": "may-xay-sinh-to-da-nang", "originalName": "Máy xay đa năng"}
+{"id": 15, "name": "Máy xay sinh tố cầm tay", "url": "cam-tay", "parentId": 13, "originalUrl": "may-xay-cam-tay", "originalName": "Máy xay cầm tay"}
+{"id": 16, "name": "Lò vi sóng", "url": "lo-vi-song", "parentId": 1, "originalUrl": null}
+{"id": 17, "name": "Ấm siêu tốc", "url": "am-sieu-toc", "parentId": 1, "originalUrl": null}
+{"id": 18, "name": "Máy tỉa lông mũi", "url": "may-tia-long-mui", "parentId": 25, "originalUrl": null}
+{"id": 19, "name": "Bếp điện", "url": "bep-dien", "parentId": 1, "originalUrl": null}
+{"id": 20, "name": "Bếp từ", "url": "bep-tu", "parentId": 19, "originalUrl": null, "originalName": "Bếp điện từ"}
+{"id": 21, "name": "Bếp hồng ngoại", "url": "bep-hong-ngoai", "parentId": 19, "originalUrl": null, "originalName": "Bếp điện hồng ngoại"}
+{"id": 22, "name": "Nồi lẩu điện", "url": "noi-lau-dien", "parentId": 1, "originalUrl": null}
+{"id": 23, "name": "Nồi áp suất", "url": "noi-ap-suat", "parentId": 1, "originalUrl": null}
+{"id": 24, "name": "Nồi nấu chậm", "url": "noi-nau-cham", "parentId": 1, "originalUrl": null}
+{"id": 25, "name": "Sức khỏe và làm đẹp", "url": "suc-khoe-lam-dep", "parentId": null, "originalUrl": null, "originalName": "Chăm sóc sức khỏe - Làm đẹp"}
+{"id": 26, "name": "Máy massage", "url": "may-massage", "parentId": 25, "originalUrl": null}
+{"id": 27, "name": "Súng massage", "url": "sung-massage", "parentId": 26, "originalUrl": null}
+{"id": 28, "name": "Máy massage cổ vai gáy", "url": "co-vai-gay", "parentId": 26, "originalUrl": null}
+{"id": 29, "name": "Máy massage chân", "url": "chan", "parentId": 26, "originalUrl": null}
+{"id": 30, "name": "Máy massage mắt", "url": "mat", "parentId": 26, "originalUrl": null}
+{"id": 31, "name": "Máy massage lưng", "url": "lung", "parentId": 26, "originalUrl": null}
+{"id": 32, "name": "Máy massage đầu", "url": "dau", "parentId": 26, "originalUrl": null}
+{"id": 33, "name": "Máy massage mặt", "url": "massage-mat", "parentId": 26, "originalUrl": "may-massage-mat-nang-co"}
+{"id": 34, "name": "Máy tăm nước", "url": "may-tam-nuoc", "parentId": 25, "originalUrl": null}
+{"id": 35, "name": "Bàn chải điện", "url": "ban-chai-dien", "parentId": 25, "originalUrl": null}
+{"id": 36, "name": "Máy rửa mặt", "url": "may-rua-mat", "parentId": 25, "originalUrl": null}
+{"id": 37, "name": "Máy sấy tóc", "url": "may-say-toc", "parentId": 25, "originalUrl": null}
+{"id": 38, "name": "Máy đo huyết áp", "url": "may-do-huyet-ap", "parentId": 25, "originalUrl": null}
+{"id": 39, "name": "Cân điện tử", "url": "can-dien-tu", "parentId": 25, "originalUrl": null, "originalName": "Cân sức khoẻ"}
+{"id": 40, "name": "Máy cạo râu", "url": "may-cao-rau", "parentId": 25, "originalUrl": null}
+{"id": 41, "name": "Tông đơ cắt tóc", "url": "tong-do-cat-toc", "parentId": 25, "originalUrl": null, "originalName": "Tông đơ"}
+{"id": 42, "name": "Thiết bị gia đình", "url": "thiet-bi-gia-dinh", "parentId": null, "originalUrl": "nha-thong-minh", "originalName": "Nhà thông minh"}
+{"id": 43, "name": "Máy hút bụi", "url": "may-hut-bui", "parentId": 42, "originalUrl": null}
+{"id": 44, "name": "Robot hút bụi", "url": "robot", "parentId": 43, "originalUrl": "robot-hut-bui"}
+{"id": 45, "name": "Máy hút bụi cầm tay", "url": "cam-tay", "parentId": 43, "originalUrl": "may-hut-bui-cam-tay"}
+{"id": 46, "name": "Máy hút bụi giường nệm", "url": "giuong-nem", "parentId": 43, "originalUrl": null}
+{"id": 47, "name": "Phụ kiện", "url": "phu-kien", "parentId": 43, "originalUrl": null}
+{"id": 48, "name": "Máy lọc không khí", "url": "may-loc-khong-khi", "parentId": 42, "originalUrl": null}
+{"id": 49, "name": "Máy lọc không khí ô tô", "url": "o-to", "parentId": 48, "originalUrl": "may-loc-khong-khi-o-to"}
+{"id": 50, "name": "Máy lọc không khí tạo ẩm", "url": "tao-am", "parentId": 48, "originalUrl": null}
+{"id": 51, "name": "Máy lọc không khí hút ẩm", "url": "hut-am", "parentId": 48, "originalUrl": null}
+{"id": 52, "name": "Lõi lọc không khí", "url": "loi-loc-khong-khi", "parentId": 48, "originalUrl": null}
+{"id": 53, "name": "Máy hút ẩm", "url": "hut-am", "parentId": 48, "originalUrl": null}
+{"id": 54, "name": "Quạt", "url": "quat", "parentId": 42, "originalUrl": null}
+{"id": 55, "name": "Quạt hộp", "url": "hop", "parentId": 54, "originalUrl": null}
+{"id": 56, "name": "Quạt tháp", "url": "thap", "parentId": 54, "originalUrl": null}
+{"id": 57, "name": "Quạt cây", "url": "cay", "parentId": 54, "originalUrl": "dung", "originalName": "Quạt đứng"}
+{"id": 58, "name": "Quạt hơi nước", "url": "hoi-nuoc", "parentId": 54, "originalUrl": null}
+{"id": 59, "name": "Quạt tích điện", "url": "tich-dien", "parentId": 54, "originalUrl": null}
+{"id": 60, "name": "Quạt thông minh", "url": "thong-minh", "parentId": 54, "originalUrl": "quat-thong-minh"}
+{"id": 61, "name": "Quạt không cánh", "url": "khong-canh", "parentId": 54, "originalUrl": null}
+{"id": 62, "name": "Tv box", "url": "tv-box", "parentId": 42, "originalUrl": null}
+{"id": 63, "name": "Máy chiếu", "url": "may-chieu", "parentId": 42, "originalUrl": null}
+{"id": 64, "name": "Máy sưởi", "url": "may-suoi", "parentId": 42, "originalUrl": "may-suoi"}
+{"id": 65, "name": "Máy sưởi dầu", "url": "dau", "parentId": 64, "originalUrl": null}
+{"id": 66, "name": "Máy sưởi gốm", "url": "gom", "parentId": 64, "originalUrl": "gom-ceramic", "originalName": "Máy sưởi gốm ceramic"}
+{"id": 67, "name": "Máy sưởi mini", "url": "mini", "parentId": 64, "originalUrl": null}
+{"id": 68, "name": "Bàn ủi", "url": "ban-ui", "parentId": 42, "originalUrl": null}
+{"id": 69, "name": "Bàn ủi hơi nước", "url": "hoi-nuoc", "parentId": 68, "originalUrl": null}
+{"id": 70, "name": "Bàn ủi hơi nước cầm tay", "url": "cam-tay", "parentId": 69, "originalUrl": null}
+{"id": 71, "name": "Bàn ủi hơi nước đứng", "url": "dung", "parentId": 69, "originalUrl": null}
+{"id": 72, "name": "Bàn ủi khô", "url": "ban-ui-kho", "parentId": 68, "originalUrl": null, "originalName": "Bàn ủi khô truyền thống"}
+{"id": 73, "name": "Chăm sóc thú cưng", "url": "cham-soc-thu-cung", "parentId": 42, "originalUrl": null}
+{"id": 74, "name": "Máy triệt lông", "url": "may-triet-long", "parentId": 25, "originalUrl": null}
+{"id": 75, "name": "Quạt tuần hoàn", "url": "tuan-hoan", "parentId": 54, "originalUrl": null}
+{"id": 76, "name": "Máy pha cà phê", "url": "may-pha-ca-phe", "parentId": 1, "originalUrl": null}

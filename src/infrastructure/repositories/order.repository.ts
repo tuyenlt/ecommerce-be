@@ -3,7 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { BaseCrudRepository } from "./base_crud.repository";
 import { OrderEntity } from "../entities/order.entity";
-import { ETableName } from "../common/constants/db.constant";
 import { IOrderRepository } from "src/domain/repositories/order-repository.interface";
 
 @Injectable()
@@ -12,7 +11,7 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
     @InjectRepository(OrderEntity)
     private readonly orderRepository: Repository<OrderEntity>,
   ) {
-    super(orderRepository, ETableName.ORDER);
+    super(orderRepository);
   }
 
   async getOrdersById(orderId: number) {

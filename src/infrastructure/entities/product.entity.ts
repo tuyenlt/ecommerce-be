@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { RatingEntity } from "./rating.entity";
 import { CategoryEntity } from "./category.entity";
 import { BaseEntity } from "./base.entity";
@@ -38,7 +38,13 @@ export class ProductEntity extends BaseEntity {
   @Column({ type: "text", nullable: true })
   html_description?: string;
 
-  @OneToMany(() => CategoryEntity, (category) => category.products, { nullable: true })
+  @Column({ type: "int", nullable: false, default: 0 })
+  stock: number;
+
+  @Column({ type: "boolean", default: true })
+  is_active: boolean;
+
+  @ManyToOne(() => CategoryEntity, (category) => category.products, { nullable: true })
   @JoinColumn({ name: "category_id" })
   category?: CategoryEntity;
 
