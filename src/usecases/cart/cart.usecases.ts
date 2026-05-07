@@ -1,13 +1,8 @@
 import { DataSource } from "typeorm";
 import { BaseUseCases } from "../base.usecases";
 import { ICartRepository } from "src/domain/repositories/cart-repository.interface";
-import { CartEntity } from "src/infrastructure/entities/cart.entity";
-import { CartItemEntity } from "src/infrastructure/entities/cart-item.entity";
 import { I18nService } from "nestjs-i18n";
 import { ICartItemRepository } from "src/domain/repositories/cart-item-repository.interface";
-import { AddToCartDto } from "src/infrastructure/controllers/cart/cart.dto";
-import { IProductRepository } from "src/domain/repositories/product-repository.interdace";
-import { NotFoundException } from "@nestjs/common";
 import { IOrderRepository } from "src/domain/repositories/order-repository.interface";
 
 export class CartUsecases extends BaseUseCases {
@@ -21,5 +16,4 @@ export class CartUsecases extends BaseUseCases {
   ) {
     super(dataSource);
   }
-
 }
