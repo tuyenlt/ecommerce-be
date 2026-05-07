@@ -3,7 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { BaseCrudRepository } from "./base_crud.repository";
 import { CartEntity } from "../entities/cart.entity";
-import { ETableName } from "../common/constants/db.constant";
 import { ICartRepository } from "src/domain/repositories/cart-repository.interface";
 
 @Injectable()
@@ -12,7 +11,7 @@ export class CartRepository extends BaseCrudRepository<CartEntity> implements IC
     @InjectRepository(CartEntity)
     private readonly cartRepository: Repository<CartEntity>,
   ) {
-    super(cartRepository, ETableName.CART);
+    super(cartRepository);
   }
 
   async getCartItems(cartId: number) {

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne } from "typeorm";
 import { BaseEntity } from "./base.entity";
 import { ETableName, EUserRole } from "../common/constants/db.constant";
 import { RatingEntity } from "./rating.entity";
@@ -71,8 +71,8 @@ export class UserEntity extends BaseEntity {
   @OneToMany(() => RatingEntity, (rating) => rating.user)
   ratings!: RatingEntity[];
 
-  @OneToMany(() => CartEntity, (cart) => cart.user)
-  carts!: CartEntity[];
+  @OneToOne(() => CartEntity, (cart) => cart.user)
+  cart!: CartEntity;
 
   @OneToMany(() => OrderEntity, (order) => order.user)
   orders!: OrderEntity[];

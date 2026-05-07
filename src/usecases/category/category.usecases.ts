@@ -19,19 +19,11 @@ export class CategoryUsecases extends BaseUseCases {
   }
 
   async getCategoryTree() {
-    const categories = await this.categoryRepository.findByFilter(
-      {},
-      {
-        id: true,
-        name: true,
-        slug: true,
-        image_url: true,
-        depth: true,
-        parent_category_id: true,
+    const categories = await this.categoryRepository.getAll({
+      where: {
+        parent_category_id: null,
       },
-      null,
-      { depth: "ASC" },
-    );
+    });
     return this.buildCategoryTree(categories);
   }
 
@@ -52,12 +44,14 @@ export class CategoryUsecases extends BaseUseCases {
   }
 
   async getCategoryById(id: number) {
-    return await this.categoryRepository.findOneByFilter({ id });
+    return await this.categoryRepository.getOneByIdOrFail(id);
   }
 
   async createCategory(dto: CreateCategoryDto) {
-    const existedCatWithSlug = await this.categoryRepository.findOneByFilter({ slug: dto.slug });
-    if (existedCatWithSlug) {
+    const existedCatWithSlug = await this.categoryRepository.getAll({
+      where: { slug: dto.slug },
+    });
+    if (existedCatWithSlug.length > 0) {
       throw new BadRequestException(this.i18n.t("category.SLUG_ALREADY_EXISTS"));
     }
     const category = new CategoryEntity();
@@ -74,36 +68,33 @@ export class CategoryUsecases extends BaseUseCases {
     if (!parent_category_id) {
       return "";
     }
-    const parentCategory = await this.categoryRepository.findOneByFilter({
-      id: parent_category_id,
-    });
+    const parentCategory = await this.categoryRepository.getOneById(parent_category_id);
     return parentCategory.path !== ""
       ? `${parentCategory.path}.${parent_category_id}`
       : `${parent_category_id}`;
   }
 
   async updateCategory(id: number, dto: UpdateCategoryDto) {
-    const category = await this.categoryRepository.findOneByFilter({ id });
-    if (!category) {
-      throw new BadRequestException(this.i18n.t("category.NOT_FOUND"));
-    }
+    const category = await this.categoryRepository.getOneByIdOrFail(id);
     category.name = dto.name;
     category.description = dto.description;
     category.image_url = dto.image_url;
     category.slug = dto.slug;
     category.path = await this.generateCategoryPath(dto.parent_category_id);
-    return await this.categoryRepository.update(id, category);
+    return await this.categoryRepository.updateById(id, category);
   }
 
   async deleteCategory(id: number) {
-    const category = await this.categoryRepository.findOneByFilter({ id });
+    const category = await this.categoryRepository.getOneByIdOrFail(id);
     if (!category) {
       throw new BadRequestException(this.i18n.t("category.NOT_FOUND"));
     }
-    const childCategories = await this.categoryRepository.findByFilter({ parent_category_id: id });
+    const childCategories = await this.categoryRepository.getAll({
+      where: { parent_category_id: id },
+    });
     if (childCategories.length > 0) {
       throw new BadRequestException(this.i18n.t("category.HAS_CHILD_CATEGORIES"));
     }
-    return await this.categoryRepository.delete(id);
+    return await this.categoryRepository.removeById(id);
   }
 }

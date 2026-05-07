@@ -3,9 +3,8 @@ import { BaseCrudRepository } from "./base_crud.repository";
 import { ProductEntity } from "../entities/product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { ETableName } from "../common/constants/db.constant";
 import { GetListProductDto } from "../controllers/product/product.dto";
-import { BasePaginationResponseDto } from "../common/dtos/base_pagination_response.dto";
+import { PaginationDetails } from "../common/dtos/base.dto";
 
 @Injectable()
 export class ProductRepository extends BaseCrudRepository<ProductEntity> {
@@ -13,10 +12,10 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
     @InjectRepository(ProductEntity)
     private readonly productRepository: Repository<ProductEntity>,
   ) {
-    super(productRepository, ETableName.PRODUCT);
+    super(productRepository);
   }
 
-  async getListPagination(query: GetListProductDto): Promise<BasePaginationResponseDto> {
+  async getListPagination(query: GetListProductDto): Promise<PaginationDetails> {
     const qb = this.productRepository.createQueryBuilder("product");
     qb.skip((query.page - 1) * query.limit).take(query.limit);
     if (query.name) {
@@ -39,12 +38,11 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
       "product.images",
     ]);
     const [data, count] = await qb.getManyAndCount();
-    const res = new BasePaginationResponseDto();
+    const res = new PaginationDetails();
     res.data = data;
     res.total = count;
-    res.currentPage = query.page;
+    res.page = query.page;
     res.limit = query.limit;
-    res.totalPages = Math.ceil(count / query.limit);
     return res;
   }
 }

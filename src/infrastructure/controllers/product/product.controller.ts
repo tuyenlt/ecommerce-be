@@ -16,7 +16,7 @@ import { Public } from "src/infrastructure/common/decorators/public.decorator";
 import { UsecasesProxyModule } from "src/infrastructure/usecases-proxy/modules/usecases-proxy.module";
 import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { ProductUsecases } from "src/usecases/product/product.usecases";
-import { GetListProductDto, ListProductResponseDto, ProductDto } from "./product.dto";
+import { GetListProductDto, ProductDto } from "./product.dto";
 import { RoleGuard } from "src/infrastructure/common/guards/role.guard";
 import { EUserRole } from "src/infrastructure/common/constants/db.constant";
 import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
@@ -39,7 +39,6 @@ export class ProductController extends BaseController {
   @ApiResponse({
     status: 200,
     description: "List of products retrieved successfully",
-    type: ListProductResponseDto,
   })
   async getProducts(@Query() query: GetListProductDto) {
     return await this.productUseCases.getInstance().getListProducts(query);

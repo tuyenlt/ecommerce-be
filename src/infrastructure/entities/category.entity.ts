@@ -8,6 +8,9 @@ export class CategoryEntity extends BaseEntity {
   @Column({ type: "varchar", length: 255 })
   name!: string;
 
+  @Column({ type: "varchar", length: 255 })
+  url!: string;
+
   @Column({ type: "text", nullable: true })
   description?: string;
 

@@ -22,7 +22,7 @@ export class AuthUsecases extends BaseUseCases {
   }
 
   async register(dto: RegisterRequestDto) {
-    const userWithSameIdentity = await this.userRepository.findOneByFilter({ email: dto.email });
+    const userWithSameIdentity = await this.userRepository.getOne({ where: { email: dto.email } });
     if (userWithSameIdentity) {
       throw new BadRequestException(this.i18n.t("auth.EMAIL_ALREADY_EXISTS"));
     }
@@ -36,9 +36,11 @@ export class AuthUsecases extends BaseUseCases {
   }
 
   async loginByEmail(email: string, password: string) {
-    const user = await this.userRepository.findOneByFilter(
-      { email },
-      {
+    const user = await this.userRepository.getOne({
+      where: {
+        email,
+      },
+      select: {
         password: true,
         id: true,
         email: true,
@@ -46,7 +48,7 @@ export class AuthUsecases extends BaseUseCases {
         avatar_url: true,
         role: true,
       },
-    );
+    });
     if (!user) {
       throw new BadRequestException(this.i18n.t("auth.INVALID_CREDENTIALS"));
     }
@@ -59,9 +61,9 @@ export class AuthUsecases extends BaseUseCases {
 
   async refreshToken(refresh_token: string) {
     const payload = this.jwtService.verifyRefreshToken(refresh_token);
-    const user = await this.userRepository.findOneByFilter(
-      { id: payload.id },
-      {
+    const user = await this.userRepository.getOne({
+      where: { id: payload.id },
+      select: {
         id: true,
         email: true,
         full_name: true,
@@ -69,7 +71,7 @@ export class AuthUsecases extends BaseUseCases {
         role: true,
         refresh_token: true,
       },
-    );
+    });
     if (!user) {
       throw new UnauthorizedException(this.i18n.t("auth.INVALID_CREDENTIALS"));
     }
@@ -83,9 +85,12 @@ export class AuthUsecases extends BaseUseCases {
     const payload = this.createTokenPayload(user);
     const accessToken = this.jwtService.signAccessToken(payload);
     const refreshToken = this.jwtService.signRefreshToken(payload);
-    await this.userRepository.update(user.id, {
-      refresh_token: refreshToken,
-    });
+    await this.userRepository.update(
+      { where: { id: user.id } },
+      {
+        refresh_token: refreshToken,
+      },
+    );
 
     return {
       accessToken,
@@ -94,12 +99,12 @@ export class AuthUsecases extends BaseUseCases {
   }
 
   async logout(userId: number) {
-    const user = await this.userRepository.findOneByFilter({ id: userId });
+    const user = await this.userRepository.getOne({ where: { id: userId } });
     if (!user) {
       throw new UnauthorizedException(this.i18n.t("auth.INVALID_CREDENTIALS"));
     }
     user.refresh_token = null;
-    await this.userRepository.update(userId, user);
+    await this.userRepository.update({ where: { id: userId } }, user);
   }
 
   private createTokenPayload(user: UserEntity): TokenPayload {
@@ -117,7 +122,7 @@ export class AuthUsecases extends BaseUseCases {
     const email = profile.emails[0].value;
     const name = profile.displayName;
 
-    const user = await this.userRepository.findOneByFilter({ email });
+    const user = await this.userRepository.getOne({ where: { email } });
     if (!user) {
       const newUser = await this.userRepository.create({
         email,

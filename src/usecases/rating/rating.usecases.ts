@@ -45,11 +45,11 @@ export class RatingUsecases extends BaseUseCases {
 
   async deleteRating(id: number) {
     await this.findOneByIdOrFail(id);
-    return await this.ratingRepository.delete(id);
+    return await this.ratingRepository.removeById(id);
   }
 
   private async findOneByIdOrFail(id: number) {
-    const rating = await this.ratingRepository.findOneByFilter({ id });
+    const rating = await this.ratingRepository.getOneByIdOrFail(id);
     if (!rating) {
       throw new BadRequestException(this.i18n.t("rating.RATING_NOT_FOUND"));
     }
