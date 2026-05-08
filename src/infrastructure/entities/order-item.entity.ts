@@ -24,7 +24,7 @@ export class OrderItemEntity extends BaseEntity {
   product_name!: string;
 
   @Column({ name: "price", type: "decimal", precision: 15, scale: 2 })
-  price!: string;
+  price!: number;
 
   @Column({ name: "quantity", type: "int", unsigned: true })
   quantity!: number;

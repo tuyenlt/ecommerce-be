@@ -29,18 +29,38 @@ export class CategoryUsecases extends BaseUseCases {
 
   private buildCategoryTree(categories: CategoryEntity[]): any[] {
     const tree = [];
-    for (const category of categories) {
-      console.log("Processing category:", category.name, "with depth:", category.depth);
-      if (category.depth === 1) {
-        tree.push({ ...category, subCategories: [] });
-        continue;
-      }
-      const parentCategory = tree.find((cat) => cat.id === category.parent_category_id);
-      if (parentCategory) {
-        parentCategory.subCategories.push({ ...category, subCategories: [] });
+    let processed = true;
+    while (categories.length > 0 && processed) {
+      processed = false;
+      for (const category of categories) {
+        if (category.depth === 1) {
+          tree.push({ ...category, subCategories: [] });
+          categories = categories.filter((cat) => cat.id !== category.id);
+          processed = true;
+          continue;
+        }
+        const parentCategory = this.searchCategoryRecursion(tree, category.parent_category_id);
+        if (parentCategory) {
+          parentCategory.subCategories.push({ ...category, subCategories: [] });
+          categories = categories.filter((cat) => cat.id !== category.id);
+          processed = true;
+        }
       }
     }
     return tree;
+  }
+
+  private searchCategoryRecursion(categories: any, id: number) {
+    for (const category of categories) {
+      if (category.id === id) {
+        return category;
+      }
+      const found = this.searchCategoryRecursion(category.subCategories, id);
+      if (found) {
+        return found;
+      }
+    }
+    return undefined;
   }
 
   async getCategoryById(id: number) {

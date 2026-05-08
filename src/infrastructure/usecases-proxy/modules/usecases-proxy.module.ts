@@ -13,6 +13,9 @@ import productUsecasesProvider from "../providers/product-usecases.provider";
 import categoryUsecasesProvider from "../providers/category-usecases.provider";
 import { HttpModule } from "@nestjs/axios";
 import userUsecasesProvider from "../providers/user-usecases.provider";
+import cartUsecasesProvider from "../providers/cart-usecases.provider";
+import orderUsecasesProvider from "../providers/order-usecases.provider";
+import { OnlineBankingModule } from "src/infrastructure/services/online-banking/online-banking.module";
 @Module({
   imports: [
     LoggerModule,
@@ -22,6 +25,7 @@ import userUsecasesProvider from "../providers/user-usecases.provider";
     ExceptionsModule,
     BcryptModule,
     HttpModule,
+    OnlineBankingModule,
   ],
   providers: [JwtTokenService],
   exports: [JwtTokenService],
@@ -37,6 +41,8 @@ export class UsecasesProxyModule extends ProxyModule {
         productUsecasesProvider,
         categoryUsecasesProvider,
         userUsecasesProvider,
+        cartUsecasesProvider,
+        orderUsecasesProvider,
       ],
       exports: Object.values(ProxyModule),
     };

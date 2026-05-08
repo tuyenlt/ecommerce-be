@@ -5,15 +5,22 @@ import { CategoryController } from "./category/category.controller";
 import { ProductController } from "./product/product.controller";
 import { RatingController } from "./rating/rating.controller";
 import { UserController } from "./user/user.controller";
+import { CartController } from "./cart/cart.controller";
+import { OrderController } from "./order/order.controller";
+import { PaymentController } from "./payment/payment.controller";
+import { OnlineBankingModule } from "../services/online-banking/online-banking.module";
 
 @Module({
-  imports: [UsecasesProxyModule.register()],
+  imports: [UsecasesProxyModule.register(), OnlineBankingModule],
   controllers: [
     AuthController,
     ProductController,
     CategoryController,
     RatingController,
     UserController,
+    CartController,
+    OrderController,
+    PaymentController,
   ],
 })
 export class ControllersModule {}

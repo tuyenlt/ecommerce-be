@@ -171,9 +171,12 @@ export abstract class BaseCrudRepository<T extends BaseEntity> implements IBaseR
     return this.repository.save(newEntity);
   }
 
-  async remove(options: FindOrFailOptions<T>): Promise<T> {
+  async remove(options: FindOrFailOptions<T>, queryRunner?: QueryRunner): Promise<T> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(this.repository.target)
+      : this.repository;
     const entity = await this.getOneOrFail(options);
-    return this.repository.remove(entity);
+    return repo.remove(entity);
   }
 
   async deleteMany(
@@ -182,28 +185,48 @@ export abstract class BaseCrudRepository<T extends BaseEntity> implements IBaseR
     return this.repository.delete(options);
   }
 
-  async removeById(id: number, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
+  async removeById(
+    id: number,
+    options?: Partial<FindOrFailOptions<T>>,
+    queryRunner?: QueryRunner,
+  ): Promise<T> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(this.repository.target)
+      : this.repository;
     const entity = await this.getOneByIdOrFail(id, options);
-    return this.repository.remove(entity);
+    return repo.remove(entity);
   }
 
   removeAll(): Promise<DeleteResult> {
     return this.repository.delete({});
   }
 
-  async softRemove(options: FindOrFailOptions<T>): Promise<T> {
+  async softRemove(options: FindOrFailOptions<T>, queryRunner?: QueryRunner): Promise<T> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(this.repository.target)
+      : this.repository;
     const entity = await this.getOneOrFail(options);
-    return this.repository.softRemove(entity);
+    return repo.softRemove(entity);
   }
 
-  async softRemoveMany(options: FindOrFailOptions<T>): Promise<T[]> {
+  async softRemoveMany(options: FindOrFailOptions<T>, queryRunner?: QueryRunner): Promise<T[]> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(this.repository.target)
+      : this.repository;
     const entities = await this.getAll(options);
-    return this.repository.softRemove(entities);
+    return repo.softRemove(entities);
   }
 
-  async softRemoveById(id: number, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
+  async softRemoveById(
+    id: number,
+    options?: Partial<FindOrFailOptions<T>>,
+    queryRunner?: QueryRunner,
+  ): Promise<T> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(this.repository.target)
+      : this.repository;
     const entity = await this.getOneByIdOrFail(id, options);
-    return this.repository.softRemove(entity);
+    return repo.softRemove(entity);
   }
 
   softRemoveAll(): Promise<DeleteResult> {

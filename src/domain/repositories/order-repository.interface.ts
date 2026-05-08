@@ -3,5 +3,5 @@ import { IBaseRepository } from "./base-repository.interface";
 
 export interface IOrderRepository extends IBaseRepository<OrderEntity> {
   getOrdersById(orderId: number);
-  getFlattenOrderItemsOfUser(userId: number);
+  getListOrderOfUser(userId: number);
 }

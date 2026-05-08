@@ -23,7 +23,7 @@ export interface IBaseRepository<T extends BaseEntity> {
    * @returns Promise<T[]>
    * @example service.createMany([{ name: 'John Doe' }, { name: 'Jane Doe' }])
    */
-  createMany(data: DeepPartial<T>[]): Promise<T[]>;
+  createMany(data: DeepPartial<T>[], queryRunner?: QueryRunner): Promise<T[]>;
 
   /**
    * get a record
@@ -100,7 +100,7 @@ export interface IBaseRepository<T extends BaseEntity> {
    * @returns Promise<T>
    * @example service.remove({ where: { name: 'John Doe' } })
    */
-  remove(options: FindOrFailOptions<T>): Promise<T>;
+  remove(options: FindOrFailOptions<T>, queryRunner?: QueryRunner): Promise<T>;
   /**
    * remove a record by id, if not found record, return error NotFound
    * @param id Id of record
@@ -108,7 +108,11 @@ export interface IBaseRepository<T extends BaseEntity> {
    * @returns Promise<T>
    * @example service.removeById('uuid', { loadEagerRelations: false, errorMessage: 'Not found' } })
    */
-  removeById(id: number, options?: Partial<FindOrFailOptions<T>>): Promise<T>;
+  removeById(
+    id: number,
+    options?: Partial<FindOrFailOptions<T>>,
+    queryRunner?: QueryRunner,
+  ): Promise<T>;
 
   /**
    * remove all record
@@ -123,7 +127,7 @@ export interface IBaseRepository<T extends BaseEntity> {
    * @returns Promise<T>
    * @example service.softRemove({ where: { name: 'John Doe' } })
    */
-  softRemove(options: FindOrFailOptions<T>): Promise<T>;
+  softRemove(options: FindOrFailOptions<T>, queryRunner?: QueryRunner): Promise<T>;
 
   /**
    * soft remove multiple records
@@ -131,7 +135,7 @@ export interface IBaseRepository<T extends BaseEntity> {
    * @returns Promise<T[]>
    * @example service.softRemove({ where: { name: 'John Doe' } })
    */
-  softRemoveMany(options: FindOrFailOptions<T>): Promise<T[]>;
+  softRemoveMany(options: FindOrFailOptions<T>, queryRunner?: QueryRunner): Promise<T[]>;
 
   /**
    * soft remove a record by id
@@ -140,7 +144,11 @@ export interface IBaseRepository<T extends BaseEntity> {
    * @returns Promise<T>
    * @example service.softRemoveById('uuid', { loadEagerRelations: false, errorMessage: 'Not found' } })
    */
-  softRemoveById(id: number, options?: Partial<FindOrFailOptions<T>>): Promise<T>;
+  softRemoveById(
+    id: number,
+    options?: Partial<FindOrFailOptions<T>>,
+    queryRunner?: QueryRunner,
+  ): Promise<T>;
 
   /**
    * soft remove all record

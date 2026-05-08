@@ -15,25 +15,13 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
   }
 
   async getOrdersById(orderId: number) {
-    const qb = this.orderRepository.createQueryBuilder("order");
-    qb.where("order.id = :orderId", { orderId });
-    qb.leftJoinAndSelect("order.items", "items");
-    qb.leftJoin("items.product", "product");
-    qb.select([
-      "order.id",
-      "order.user_id",
-      "items.id",
-      "items.quantity",
-      "items.price_at_time",
-      "product.id",
-      "product.name",
-      "product.price",
-      "product.images",
-    ]);
-    return qb.getOne();
+    const order = await this.getOneById(orderId, {
+      relations: ["items", "items.product"],
+    });
+    return order;
   }
 
-  async getFlattenOrderItemsOfUser(userId: number) {
+  async getListOrderOfUser(userId: number) {
     const qb = this.orderRepository.createQueryBuilder("order");
     qb.where("order.user_id = :userId", { userId });
     qb.leftJoinAndSelect("order.items", "items");
@@ -50,7 +38,6 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
       "product.images",
     ]);
     const orders = await qb.getMany();
-    const flattenItems = orders.flatMap((order) => order.items);
-    return flattenItems;
+    return orders;
   }
 }
