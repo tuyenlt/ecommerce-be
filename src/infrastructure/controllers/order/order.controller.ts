@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Param, Post, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { BaseController } from "src/infrastructure/common/controllers/base.controller";
 import { CurrentUser, UserContext } from "src/infrastructure/common/decorators/user.decorator";
