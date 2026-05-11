@@ -52,6 +52,11 @@ services:
       TZ: ${TZ:-Asia/Ho_Chi_Minh}
       OAUTH2_GOOGLE_CLIENT_ID: ${OAUTH2_GOOGLE_CLIENT_ID}
       OAUTH2_GOOGLE_CLIENT_SECRET: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+      VNPAY_HOST: ${VNPAY_HOST}
+      VNP_TMNCODE: ${VNP_TMNCODE}
+      VNP_HASHSECRET: ${VNP_HASHSECRET}
+      VNP_IPADDR: ${VNP_IPADDR}
+      VNP_RETURNURL: ${VNP_RETURNURL}
     depends_on:
       postgres:
         condition: service_healthy
