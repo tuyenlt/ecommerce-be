@@ -31,10 +31,9 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
       "order.user_id",
       "items.id",
       "items.quantity",
-      "items.price_at_time",
+      "items.price",
       "product.id",
       "product.name",
-      "product.price",
       "product.images",
     ]);
     const orders = await qb.getMany();

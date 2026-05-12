@@ -23,7 +23,7 @@ export class OrderItemEntity extends BaseEntity {
   @Column({ name: "product_name", type: "varchar", length: 255 })
   product_name!: string;
 
-  @Column({ name: "price", type: "decimal", precision: 15, scale: 2 })
+  @Column({ name: "price", type: "int" })
   price!: number;
 
   @Column({ name: "quantity", type: "int", unsigned: true })

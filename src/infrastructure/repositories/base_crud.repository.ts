@@ -165,10 +165,14 @@ export abstract class BaseCrudRepository<T extends BaseEntity> implements IBaseR
     id: number,
     data: QueryDeepPartialEntity<T>,
     options?: Partial<FindOrFailOptions<T>>,
+    queryRunner?: QueryRunner,
   ): Promise<T> {
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(this.repository.target)
+      : this.repository;
     const entity = await this.getOneByIdOrFail(id, options);
     const newEntity = extend<T>(entity, data);
-    return this.repository.save(newEntity);
+    return repo.save(newEntity);
   }
 
   async remove(options: FindOrFailOptions<T>, queryRunner?: QueryRunner): Promise<T> {

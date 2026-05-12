@@ -40,9 +40,10 @@ export class OrderUsecases extends BaseUseCases {
   async createOrderFromCart(userId: number, dto: CreateOrderDto) {
     const cartItems = await this.cartItemRepository.getAll({
       where: { id: In(dto.cart_items_ids) },
+      relations: ["product"],
     });
 
-    this.executeTransaction(async (queryRunner) => {
+    return await this.executeTransaction(async (queryRunner) => {
       const orderItems = cartItems.map((item) => {
         const orderItem = new OrderItemEntity();
         orderItem.product_id = item.product_id;
@@ -54,14 +55,11 @@ export class OrderUsecases extends BaseUseCases {
         return orderItem;
       });
 
-      await this.orderItemRepository.createMany(orderItems, queryRunner);
-
       const order = new OrderEntity();
       order.user_id = userId;
       order.address = dto.address;
       order.phone = dto.phone;
       order.payment_method = dto.payment_method;
-      order.items = orderItems;
       order.total_amount = orderItems.reduce(
         (total, item) => total + item.price * item.quantity,
         0,
@@ -86,19 +84,14 @@ export class OrderUsecases extends BaseUseCases {
         order.payment_status = EPaymentStatus.UNPAID;
       }
 
-      await this.orderRepository.create(order, queryRunner);
-
-      // remove from cart
-      const userCart = await this.cartRepository.getOne({
-        where: { user_id: userId },
-        relations: ["items"],
-      });
-
-      userCart.items = userCart.items.filter((item) => !dto.cart_items_ids.includes(item.id));
-
-      await this.cartRepository.create(userCart, queryRunner);
-
-      // remove item from cart items
+      const newOrder = await this.orderRepository.create(order, queryRunner);
+      await this.orderItemRepository.createMany(
+        orderItems.map((item) => ({
+          ...item,
+          order_id: newOrder.id,
+        })),
+        queryRunner,
+      );
 
       await this.cartItemRepository.remove(
         {
@@ -106,6 +99,11 @@ export class OrderUsecases extends BaseUseCases {
         },
         queryRunner,
       );
+
+      return {
+        order_id: newOrder.id,
+        message: this.i18n.t("ORDER.CREATE_SUCCESS"),
+      };
     });
   }
 
@@ -114,7 +112,7 @@ export class OrderUsecases extends BaseUseCases {
     const order = await this.orderRepository.getOneOrFail({ where: { unique_code: vnp_TxnRef } });
     order.payment_status = EPaymentStatus.PAID;
     order.status = EOrderStatus.PREPARING;
-    await this.orderRepository.create(order);
+    await this.orderRepository.update({ where: { id: order.id } }, order);
     return {
       success: true,
       message: this.i18n.t("PAYMENT.ONLINE_BANKING.SUCCESS"),

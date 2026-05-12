@@ -8,7 +8,7 @@ import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { CartUsecases } from "src/usecases/cart/cart.usecases";
 import { AddToCartDto, CartItemsResponseDto, RemoveFromCartDto } from "./cart.dto";
 
-@Controller()
+@Controller("carts")
 @ApiTags("Carts")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -23,12 +23,12 @@ export class CartController extends BaseController {
   @Get("/")
   @ApiOkResponse({ type: [CartItemsResponseDto] })
   async getCart(@UserContext() user: CurrentUser) {
-    return this.cartUseCases.getInstance().getOrCreateCartByUserId(user.id);
+    return await this.cartUseCases.getInstance().getOrCreateCartByUserId(user.id);
   }
 
   @Post("/add-item")
   async addToCart(@UserContext() user: CurrentUser, @Body() dto: AddToCartDto) {
-    await this.cartUseCases.getInstance().addToCart(user.id, dto);
+    return await this.cartUseCases.getInstance().addToCart(user.id, dto);
   }
 
   @Delete("/remove-item")

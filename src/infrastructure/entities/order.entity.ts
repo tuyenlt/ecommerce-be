@@ -18,7 +18,7 @@ export class OrderEntity extends BaseEntity {
   @Column({ name: "user_id", type: "bigint", unsigned: true })
   user_id!: number;
 
-  @Column({ name: "total_amount", type: "decimal", precision: 15, scale: 2 })
+  @Column({ name: "total_amount", type: "int" })
   total_amount!: number;
 
   @Column({ name: "status", type: "enum", enum: EOrderStatus, default: EOrderStatus.PENDING })
@@ -32,7 +32,7 @@ export class OrderEntity extends BaseEntity {
   })
   payment_status!: EPaymentStatus;
 
-  @Column({ name: "shipping_fee", type: "decimal", precision: 15, scale: 2, default: 0 })
+  @Column({ name: "shipping_fee", type: "int", default: 0 })
   shipping_fee!: number;
 
   @Column({ name: "payment_method", type: "enum", enum: EPaymentMethod, nullable: true })
@@ -50,6 +50,6 @@ export class OrderEntity extends BaseEntity {
   @Column({ name: "unique_code", type: "varchar", length: 100, nullable: true })
   unique_code!: string;
 
-  @Column({ name: "online_bank_url", type: "varchar", length: 255, nullable: true })
+  @Column({ name: "online_bank_url", type: "varchar", length: 2000, nullable: true })
   online_bank_url!: string;
 }

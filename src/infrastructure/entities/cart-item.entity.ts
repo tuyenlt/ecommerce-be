@@ -23,6 +23,6 @@ export class CartItemEntity extends BaseEntity {
   @Column({ name: "quantity", type: "int", unsigned: true })
   quantity!: number;
 
-  @Column({ name: "price_at_time", type: "decimal", precision: 15, scale: 2 })
+  @Column({ name: "price_at_time", type: "int" })
   price_at_time!: number;
 }

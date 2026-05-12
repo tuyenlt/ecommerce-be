@@ -79,7 +79,11 @@ export interface IBaseRepository<T extends BaseEntity> {
    * @returns Promise<T>
    * @example service.update({ where: { name: 'John Doe' } }, { name: 'Jane Doe updated' })
    */
-  update(options: FindOrFailOptions<T>, data: QueryDeepPartialEntity<T>): Promise<T>;
+  update(
+    options: FindOrFailOptions<T>,
+    data: QueryDeepPartialEntity<T>,
+    queryRunner?: QueryRunner,
+  ): Promise<T>;
   /**
    * update a record by id, if not found record, return error NotFound
    * @param id Id of record
@@ -92,6 +96,7 @@ export interface IBaseRepository<T extends BaseEntity> {
     id: number,
     data: QueryDeepPartialEntity<T>,
     options?: Partial<FindOrFailOptions<T>>,
+    queryRunner?: QueryRunner,
   ): Promise<T>;
 
   /**

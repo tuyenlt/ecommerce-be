@@ -5,6 +5,7 @@ import { ProxyModule } from "../modules";
 import { CartItemRepository } from "src/infrastructure/repositories/cart-item.repository";
 import { CartRepository } from "src/infrastructure/repositories/cart.repository";
 import { ProductRepository } from "src/infrastructure/repositories/product.repository";
+import { UseCaseProxy } from "../usecases-proxy";
 
 export default {
   inject: [CartRepository, CartItemRepository, ProductRepository, I18nService, DataSource],
@@ -16,12 +17,8 @@ export default {
     i18n: I18nService,
     dataSource: DataSource,
   ) => {
-    return new CartUsecases(
-      cartRepository,
-      cartItemRepository,
-      productRepository,
-      i18n,
-      dataSource,
+    return new UseCaseProxy(
+      new CartUsecases(cartRepository, cartItemRepository, productRepository, i18n, dataSource),
     );
   },
 };

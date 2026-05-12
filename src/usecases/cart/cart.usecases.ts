@@ -34,7 +34,10 @@ export class CartUsecases extends BaseUseCases {
   }
 
   async addToCart(userId: number, dto: AddToCartDto) {
-    let cart = await this.cartRepository.getOne({ where: { user_id: userId } });
+    let cart = await this.cartRepository.getOne({
+      where: { user_id: userId },
+      relations: ["items"],
+    });
     if (!cart) {
       cart = await this.createCart(userId);
     }
@@ -44,37 +47,61 @@ export class CartUsecases extends BaseUseCases {
         this.i18n.t("CART.INSUFFICIENT_STOCK", { args: { productName: product.name } }),
       );
     }
-    this.executeTransaction(async (queryRunner) => {
-      const cartItem = await this.cartItemRepository.create({
-        product_id: dto.product_id,
-        cart_id: cart.id,
-        quantity: dto.quantity,
-      });
 
-      cart.items.push(cartItem);
-      await this.cartRepository.create(cart, queryRunner);
-      return {
-        message: this.i18n.t("CART.ADD_SUCCESS", { args: { productName: product.name } }),
-      };
+    await this.executeTransaction(async (queryRunner) => {
+      if (cart.items.find((item) => item.product_id === dto.product_id)) {
+        const cartItem = cart.items.find((item) => item.product_id === dto.product_id);
+        cartItem.quantity += dto.quantity;
+        await this.cartItemRepository.update(
+          {
+            where: { id: cartItem.id },
+          },
+          { quantity: cartItem.quantity },
+          queryRunner,
+        );
+      } else {
+        // Create cart item with queryRunner
+        await this.cartItemRepository.create(
+          {
+            product_id: dto.product_id,
+            cart_id: cart.id,
+            quantity: dto.quantity,
+            price_at_time: product.sale_price > 0 ? product.sale_price : product.base_price,
+          },
+          queryRunner,
+        );
+      }
     });
+    return {
+      message: this.i18n.t("CART.ADD_SUCCESS", { args: { productName: product.name } }),
+    };
   }
 
   async removeFromCart(userId: number, dto: RemoveFromCartDto) {
-    const cart = await this.cartRepository.getOneOrFail({ where: { user_id: userId } });
-    if (dto.quantity) {
-      const cartItem = cart.items.find((item) => item.id === dto.cart_item_id);
-      if (cartItem) {
-        cartItem.quantity -= dto.quantity;
-        if (cartItem.quantity <= 0) {
-          cart.items = cart.items.filter((item) => item.id !== dto.cart_item_id);
+    return this.executeTransaction(async (queryRunner) => {
+      if (dto.quantity) {
+        // Check if cart item exists first
+        const cartItem = await this.cartItemRepository.getOne({
+          where: { id: dto.cart_item_id },
+        });
+
+        if (!cartItem) {
+          throw new BadRequestException(this.i18n.t("CART.ITEM_NOT_FOUND"));
         }
+
+        const newQuantity = cartItem.quantity - dto.quantity;
+        if (newQuantity <= 0) {
+          // Remove item if quantity goes to 0 or below
+          await this.cartItemRepository.remove({ where: { id: dto.cart_item_id } }, queryRunner);
+        } else {
+          // Update quantity using updateById
+          await this.cartItemRepository.updateById(dto.cart_item_id, { quantity: newQuantity });
+        }
+      } else {
+        // Remove entire item
+        await this.cartItemRepository.remove({ where: { id: dto.cart_item_id } }, queryRunner);
       }
-    } else {
-      cart.items = cart.items.filter((item) => item.id !== dto.cart_item_id);
-    }
-    this.executeTransaction(async (queryRunner) => {
-      await this.cartItemRepository.remove({ where: { id: dto.cart_item_id } }, queryRunner);
-      await this.cartRepository.create(cart, queryRunner);
+
       return {
         message: this.i18n.t("CART.REMOVE_SUCCESS"),
       };
