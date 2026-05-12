@@ -14,3 +14,13 @@ export const randomAlphabet = (stringLength: number) => {
   while (stringLength--) randomString += String.fromCharCode(rd());
   return randomString;
 };
+
+export function parseVietnamesePrice(price?: string | null): number {
+  if (!price) return 0;
+
+  return Number(price.replace(/[^\d]/g, ""));
+}
+
+export function formatVietnamesePrice(price: number): string {
+  return price.toLocaleString("vi-VN") + "đ";
+}

@@ -3,7 +3,7 @@ import { BaseUseCases } from "../base.usecases";
 import { ICartRepository } from "src/domain/repositories/cart-repository.interface";
 import { I18nService } from "nestjs-i18n";
 import { ICartItemRepository } from "src/domain/repositories/cart-item-repository.interface";
-import { IProductRepository } from "src/domain/repositories/product-repository.interdace";
+import { IProductRepository } from "src/domain/repositories/product-repository.interface";
 import { AddToCartDto, RemoveFromCartDto } from "src/infrastructure/controllers/cart/cart.dto";
 import { BadRequestException } from "@nestjs/common";
 
