@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsJSON, IsNumber, IsOptional, IsString, MaxLength, IsEnum } from "class-validator";
+import { IsJSON, IsNumber, IsOptional, IsString, MaxLength, IsEnum, Min } from "class-validator";
 import { PaginationDto } from "src/infrastructure/common/dtos/base.dto";
 import { ProductEntity } from "src/infrastructure/entities/product.entity";
 import { ORDER_DIRECTION } from "src/infrastructure/common/constants/common.constant";
@@ -111,4 +111,14 @@ export class ProductDto {
   @IsOptional()
   @IsJSON()
   images?: string;
+
+  @ApiPropertyOptional({ description: "Stock quantity of the product" })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  stock?: number;
+
+  @ApiPropertyOptional({ description: "Whether the product is active" })
+  @IsOptional()
+  is_active?: boolean;
 }

@@ -2,7 +2,11 @@ import { DataSource, In } from "typeorm";
 import { BaseUseCases } from "../base.usecases";
 import { IOrderRepository } from "src/domain/repositories/order-repository.interface";
 import { ICartRepository } from "src/domain/repositories/cart-repository.interface";
-import { CreateOrderDto } from "src/infrastructure/controllers/order/order.dto";
+import {
+  CreateOrderDto,
+  UpdateOrderAdminDto,
+  UpdateOrderUserDto,
+} from "src/infrastructure/controllers/order/order.dto";
 import { ICartItemRepository } from "src/domain/repositories/cart-item-repository.interface";
 import { OrderEntity } from "src/infrastructure/entities/order.entity";
 import { OrderItemEntity } from "src/infrastructure/entities/order-item.entity";
@@ -16,6 +20,7 @@ import { IOnlineBankingService } from "src/domain/services/online-banking-servic
 import * as uuid from "uuid";
 import { EQRType } from "src/infrastructure/common/constants/services.constant";
 import { I18nService } from "nestjs-i18n";
+import { BadRequestException } from "@nestjs/common";
 export class OrderUsecases extends BaseUseCases {
   constructor(
     private readonly orderRepository: IOrderRepository,
@@ -141,6 +146,69 @@ export class OrderUsecases extends BaseUseCases {
     await this.orderRepository.create(order);
     return {
       url: order.online_bank_url,
+    };
+  }
+
+  async cancelOrder(userId: number, orderId: number) {
+    const order = await this.orderRepository.getOneOrFail({
+      where: { id: orderId, user_id: userId },
+      relations: ["items"],
+    });
+
+    if (order.status !== EOrderStatus.PENDING) {
+      throw new BadRequestException(this.i18n.t("ORDER.CANCEL_NOT_ALLOWED"));
+    }
+
+    await this.executeTransaction(async (queryRunner) => {
+      const itemIds = order.items.map((item) => item.id);
+      await this.orderItemRepository.remove(
+        {
+          where: { id: In(itemIds) },
+        },
+        queryRunner,
+      );
+      await this.orderRepository.remove({ where: { id: orderId } }, queryRunner);
+    });
+    return {
+      message: this.i18n.t("ORDER.CANCEL_SUCCESS"),
+    };
+  }
+
+  async updateOrderForUser(userId: number, orderId: number, dto: UpdateOrderUserDto) {
+    const order = await this.orderRepository.getOneOrFail({
+      where: { id: orderId, user_id: userId },
+    });
+
+    if (order.status === EOrderStatus.SHIPPING || order.status === EOrderStatus.SHIPPED) {
+      throw new BadRequestException(this.i18n.t("ORDER.UPDATE_NOT_ALLOWED"));
+    }
+
+    order.address = dto.address || order.address;
+    order.phone = dto.phone || order.phone;
+
+    await this.orderRepository.update({ where: { id: order.id } }, order);
+    return {
+      message: this.i18n.t("ORDER.UPDATE_SUCCESS"),
+    };
+  }
+
+  async updateOrderForAdmin(orderId: number, dto: UpdateOrderAdminDto) {
+    const order = await this.orderRepository.getOneOrFail({
+      where: { id: orderId },
+    });
+
+    order.address = dto.address || order.address;
+    order.phone = dto.phone || order.phone;
+    order.status = dto.status || order.status;
+    if (order.payment_method == EPaymentMethod.ONLINE_BANKING && order.status !== dto.status) {
+      throw new BadRequestException(
+        this.i18n.t("ORDER.STATUS_UPDATE_NOT_ALLOWED_FOR_ONLINE_BANKING"),
+      );
+    }
+
+    await this.orderRepository.update({ where: { id: order.id } }, order);
+    return {
+      message: this.i18n.t("ORDER.UPDATE_SUCCESS"),
     };
   }
 }

@@ -39,6 +39,9 @@ export class ProductEntity extends BaseEntity {
   @Column({ type: "boolean", default: true })
   is_active: boolean;
 
+  @Column({ type: "int", nullable: true })
+  category_id?: number;
+
   @ManyToOne(() => CategoryEntity, (category) => category.products, { nullable: true })
   @JoinColumn({ name: "category_id" })
   category?: CategoryEntity;

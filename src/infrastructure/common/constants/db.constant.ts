@@ -17,8 +17,8 @@ export enum EUserRole {
 export enum EOrderStatus {
   PENDING = "pending",
   PREPARING = "preparing",
+  SHIPPING = "shipping",
   SHIPPED = "shipped",
-  CANCELLED = "cancelled",
 }
 
 export enum EPaymentMethod {

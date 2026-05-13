@@ -3,7 +3,7 @@ import { BaseUseCases } from "../base.usecases";
 import { DataSource } from "typeorm";
 import { I18nService } from "nestjs-i18n";
 import { CreateRatingDto, ListRatingDto } from "src/infrastructure/controllers/rating/rating.dto";
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { CurrentUser } from "src/infrastructure/common/decorators/user.decorator";
 import { RatingEntity } from "src/infrastructure/entities/rating.entity";
 import { HttpService } from "@nestjs/axios";
@@ -43,8 +43,11 @@ export class RatingUsecases extends BaseUseCases {
     return await this.findOneByIdOrFail(id);
   }
 
-  async deleteRating(id: number) {
-    await this.findOneByIdOrFail(id);
+  async deleteRating(userId: number, id: number) {
+    const ratting = await this.findOneByIdOrFail(id);
+    if (ratting.user_id !== userId) {
+      throw new ForbiddenException(this.i18n.t("rating.FORBIDDEN_DELETE_RATING"));
+    }
     return await this.ratingRepository.removeById(id);
   }
 

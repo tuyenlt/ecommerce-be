@@ -17,6 +17,7 @@ import { RatingUsecases } from "src/usecases/rating/rating.usecases";
 import { CreateRatingDto, ListRatingDto } from "./rating.dto";
 import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
 import { Public } from "src/infrastructure/common/decorators/public.decorator";
+import { CurrentUser, UserContext } from "src/infrastructure/common/decorators/user.decorator";
 
 @Controller("ratings")
 @ApiTags("Ratings")
@@ -47,14 +48,14 @@ export class RatingController extends BaseController {
   @ApiBearerAuth()
   @Public()
   @ApiOperation({ summary: "Create new rating" })
-  async create(@Body() body: CreateRatingDto) {
-    return this.ratingUseCases.getInstance().createRating(body, { id: 1 });
+  async create(@Body() body: CreateRatingDto, @UserContext() user: CurrentUser) {
+    return this.ratingUseCases.getInstance().createRating(body, user);
   }
 
   @Delete(":id")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Delete rating" })
-  async delete(@Param("id") id: number) {
-    return this.ratingUseCases.getInstance().deleteRating(id);
+  async delete(@Param("id") id: number, @UserContext() user: CurrentUser) {
+    return this.ratingUseCases.getInstance().deleteRating(user.id, id);
   }
 }
