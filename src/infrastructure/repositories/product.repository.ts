@@ -25,7 +25,7 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
       qb.andWhere("product.name ILIKE :name", { name: `%${query.name}%` });
     }
     if (query.category_path) {
-      qb.andWhere("category.path = :category", { category: query.category_path });
+      qb.andWhere("category.path LIKE :category", { category: `%${query.category_path}%` });
     }
     if (query.minPrice) {
       qb.andWhere("product.base_price >= :minPrice", { minPrice: query.minPrice });
@@ -41,6 +41,8 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
       "product.sale_price",
       "product.images",
       "product.created_at",
+      "product.stock",
+      "product.category_id",
     ]);
     if (!query.sortBy) {
       query.sortBy = EProductSortBy.CREATED_AT;
