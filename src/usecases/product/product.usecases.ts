@@ -35,35 +35,13 @@ export class ProductUsecases extends BaseUseCases {
 
     const result = await this.productRepository.getListPagination(query);
 
-    result.data = await Promise.all(
-      result.data.map(async (product) => {
-        const ratings = await this.rattingRepository.getAll({
-          where: {
-            product_id: product.id,
-          },
-          select: {
-            rating: true,
-          },
-        });
-
-        if (ratings.length > 0) {
-          return {
-            ...product,
-            base_price: formatVietnamesePrice(product.base_price),
-            sale_price: formatVietnamesePrice(product.sale_price),
-            avg_rating:
-              ratings.reduce((acc, rating) => acc + Number(rating.rating), 0) / ratings.length,
-          };
-        }
-
-        return {
-          ...product,
-          base_price: formatVietnamesePrice(product.base_price),
-          sale_price: formatVietnamesePrice(product.sale_price),
-          avg_rating: -1,
-        };
-      }),
-    );
+    result.data = result.data.map((product) => {
+      return {
+        ...product,
+        base_price: formatVietnamesePrice(product.base_price),
+        sale_price: formatVietnamesePrice(product.sale_price),
+      };
+    });
 
     return result;
   }

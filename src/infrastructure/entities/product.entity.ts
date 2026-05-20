@@ -36,6 +36,12 @@ export class ProductEntity extends BaseEntity {
   @Column({ type: "int", nullable: false, default: 0 })
   stock: number;
 
+  @Column({ type: "int", nullable: false, default: 0 })
+  purchased: number;
+
+  @Column({ type: "float", nullable: false, default: 0 })
+  avg_rating: number;
+
   @Column({ type: "boolean", default: true })
   is_active: boolean;
 

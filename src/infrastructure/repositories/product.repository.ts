@@ -43,6 +43,7 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
       "product.created_at",
       "product.stock",
       "product.category_id",
+      "product.avg_rating",
     ]);
     if (!query.sortBy) {
       query.sortBy = EProductSortBy.CREATED_AT;

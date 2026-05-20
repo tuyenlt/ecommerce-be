@@ -1,6 +1,6 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional, OmitType } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsJSON, IsNumber, IsOptional, IsString, MaxLength, IsEnum } from "class-validator";
+import { IsNumber, IsOptional, IsString, MaxLength, IsEnum } from "class-validator";
 import { PaginationDto } from "src/infrastructure/common/dtos/base.dto";
 import { ProductEntity } from "src/infrastructure/entities/product.entity";
 import { ORDER_DIRECTION } from "src/infrastructure/common/constants/common.constant";
@@ -9,10 +9,13 @@ export enum EProductSortBy {
   NAME = "name",
   PRICE = "base_price",
   CREATED_AT = "created_at",
-  RATING = "rating",
+  RATING = "avg_rating",
 }
 
-export class GetListProductDto extends PaginationDto<ProductEntity> {
+export class GetListProductDto extends OmitType(PaginationDto<ProductEntity>, [
+  "search",
+  "filter",
+]) {
   @ApiPropertyOptional({ description: "Name of the product" })
   @IsOptional()
   @IsString()
@@ -69,46 +72,66 @@ export class ProductDto {
   @ApiProperty({ description: "Name of the product" })
   @IsString()
   @MaxLength(255)
-  name: string;
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
+  name?: string;
 
   @ApiProperty({ description: "Description of the product" })
   @IsOptional()
   @IsString()
   @MaxLength(2000)
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
   description?: string;
 
   @ApiProperty({ description: "Base price of the product" })
   @IsNumber()
-  base_price: number;
+  @Transform(({ value }) => (value ? Number(value) : undefined))
+  base_price?: number;
 
   @ApiProperty({ description: "Sale price of the product" })
   @IsOptional()
   @IsNumber()
+  @Transform(({ value }) => (value ? Number(value) : undefined))
   sale_price?: number;
 
   @ApiProperty({ description: "Category of the product" })
   @IsOptional()
   @IsNumber()
+  @Transform(({ value }) => (value ? Number(value) : undefined))
   category_id: number;
 
   @ApiProperty({ description: "Warranty period of the product" })
   @IsOptional()
   @IsString()
   @MaxLength(2000)
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
   warranty?: string;
 
   @ApiProperty({ description: "Specifications of the product" })
   @IsOptional()
-  @IsJSON()
   specs?: string;
 
   @ApiProperty({ description: "Color options for the product" })
   @IsOptional()
-  @IsJSON()
   color?: string;
 
-  @ApiProperty({ description: "Image URLs for the product" })
+  @ApiPropertyOptional({ description: "Image URLs for the product" })
   @IsOptional()
-  @IsJSON()
+  @IsString()
   images?: string;
+
+  @ApiPropertyOptional({ description: "Image files uploaded" })
+  @IsOptional()
+  images_files?: Express.Multer.File[];
+}
+
+export class CreateProductDto extends OmitType(ProductDto, ["images_files"]) {
+  @ApiPropertyOptional({ description: "Image files to upload" })
+  @IsOptional()
+  images_files?: Express.Multer.File[];
+}
+
+export class UpdateProductDto extends OmitType(ProductDto, ["images_files"]) {
+  @ApiPropertyOptional({ description: "Image files to upload" })
+  @IsOptional()
+  images_files?: Express.Multer.File[];
 }
