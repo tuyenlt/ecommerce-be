@@ -2,7 +2,7 @@ import { DataSource, In } from "typeorm";
 import { BaseUseCases } from "../base.usecases";
 import { IOrderRepository } from "src/domain/repositories/order-repository.interface";
 import { ICartRepository } from "src/domain/repositories/cart-repository.interface";
-import { CreateOrderDto } from "src/infrastructure/controllers/order/order.dto";
+import { CreateOrderDto, OrderPaginationDto } from "src/infrastructure/controllers/order/order.dto";
 import { ICartItemRepository } from "src/domain/repositories/cart-item-repository.interface";
 import { OrderEntity } from "src/infrastructure/entities/order.entity";
 import { OrderItemEntity } from "src/infrastructure/entities/order-item.entity";
@@ -31,6 +31,10 @@ export class OrderUsecases extends BaseUseCases {
 
   async getOrdersById(orderId: number) {
     return this.orderRepository.getOrdersById(orderId);
+  }
+
+  async getAllOrders(query: OrderPaginationDto) {
+    return this.orderRepository.getAllPaginated({ ...query, relations: ["order_items"] });
   }
 
   async getOrderOfUser(userId: number) {

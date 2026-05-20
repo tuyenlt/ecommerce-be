@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Inject, Param, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { BaseController } from "src/infrastructure/common/controllers/base.controller";
 import { CurrentUser, UserContext } from "src/infrastructure/common/decorators/user.decorator";
@@ -6,7 +16,9 @@ import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
 import { UsecasesProxyModule } from "src/infrastructure/usecases-proxy/modules/usecases-proxy.module";
 import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { OrderUsecases } from "src/usecases/order/order.usecases";
-import { CreateOrderDto } from "./order.dto";
+import { CreateOrderDto, OrderPaginationDto } from "./order.dto";
+import { RoleGuard } from "src/infrastructure/common/guards/role.guard";
+import { EUserRole } from "src/infrastructure/common/constants/db.constant";
 
 @Controller("orders")
 @ApiTags("Orders")
@@ -20,13 +32,23 @@ export class OrderController extends BaseController {
     super();
   }
 
-  @Get()
-  @ApiOperation({ summary: "Get all orders of the current user" })
+  @Get("/")
+  @UseGuards(new RoleGuard(EUserRole.ADMIN))
+  @ApiOperation({ summary: "Get all orders with pagination, admin feature" })
+  async getAllOrders(@Query() query: OrderPaginationDto) {
+    return await this.orderUseCases.getInstance().getAllOrders(query);
+  }
+
+  @Get("/of-user/:user_id")
+  @ApiOperation({ summary: "Get all orders of a specific user" })
   @ApiResponse({
     status: 200,
     description: "List of user orders retrieved successfully",
   })
-  async getUserOrders(@UserContext() user: CurrentUser) {
+  async getUserOrders(@UserContext() user: CurrentUser, @Param("user_id") id: number) {
+    if (user.id !== id) {
+      throw new ForbiddenException("You are not allowed to access this user's orders");
+    }
     return await this.orderUseCases.getInstance().getOrderOfUser(user.id);
   }
 

@@ -1,6 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsNotEmpty, IsNumber } from "class-validator";
 import { EPaymentMethod } from "src/infrastructure/common/constants/db.constant";
+import { PaginationDto } from "src/infrastructure/common/dtos/base.dto";
+import { OrderEntity } from "src/infrastructure/entities/order.entity";
 
 export class CreateOrderDto {
   @ApiProperty({ description: "The IDs of the products to order", example: [1, 2, 3] })
@@ -26,3 +28,5 @@ export class CreateOrderDto {
   })
   payment_method: EPaymentMethod;
 }
+
+export class OrderPaginationDto extends PaginationDto<OrderEntity> {}
