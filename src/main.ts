@@ -42,6 +42,7 @@ async function bootstrap() {
       deepScanRoutes: true,
     });
     SwaggerModule.setup("api", app, document);
+    // fs.writeFileSync("./local-docs/swagger-spec.json", JSON.stringify(document, null, 2));
   }
 
   app.enableCors({

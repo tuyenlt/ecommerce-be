@@ -2,7 +2,12 @@ import { DataSource, In } from "typeorm";
 import { BaseUseCases } from "../base.usecases";
 import { IOrderRepository } from "src/domain/repositories/order-repository.interface";
 import { ICartRepository } from "src/domain/repositories/cart-repository.interface";
-import { CreateOrderDto, OrderPaginationDto } from "src/infrastructure/controllers/order/order.dto";
+import {
+  CreateOrderDto,
+  OrderPaginationDto,
+  UpdateOrderReceiverInfoDto,
+  UpdateOrderStatusDto,
+} from "src/infrastructure/controllers/order/order.dto";
 import { ICartItemRepository } from "src/domain/repositories/cart-item-repository.interface";
 import { OrderEntity } from "src/infrastructure/entities/order.entity";
 import { OrderItemEntity } from "src/infrastructure/entities/order-item.entity";
@@ -11,11 +16,15 @@ import {
   EOrderStatus,
   EPaymentMethod,
   EPaymentStatus,
+  EUserRole,
 } from "src/infrastructure/common/constants/db.constant";
 import { IOnlineBankingService } from "src/domain/services/online-banking-service.interface";
 import * as uuid from "uuid";
 import { EQRType } from "src/infrastructure/common/constants/services.constant";
 import { I18nService } from "nestjs-i18n";
+import { CurrentUser } from "src/infrastructure/common/decorators/user.decorator";
+import { buildRangeQueryOperator } from "src/infrastructure/common/utils/query.ultil";
+import { ForbiddenException } from "@nestjs/common";
 export class OrderUsecases extends BaseUseCases {
   constructor(
     private readonly orderRepository: IOrderRepository,
@@ -29,12 +38,45 @@ export class OrderUsecases extends BaseUseCases {
     super(dataSource);
   }
 
-  async getOrdersById(orderId: number) {
-    return this.orderRepository.getOrdersById(orderId);
+  async getOrdersById(user: CurrentUser, orderId: number) {
+    const order = await this.orderRepository.getOrdersById(orderId);
+    if (order.user.id !== user.id && user.role !== EUserRole.ADMIN)
+      throw new ForbiddenException(this.i18n.t("ORDER.ACCESS_DENIED"));
+    return order;
   }
 
   async getAllOrders(query: OrderPaginationDto) {
-    return this.orderRepository.getAllPaginated({ ...query, relations: ["order_items"] });
+    const createdAtOperator = buildRangeQueryOperator(
+      "created_at",
+      query.created_at_from,
+      query.created_at_to,
+    );
+    const amountOperator = buildRangeQueryOperator(
+      "total_amount",
+      query.amount_from,
+      query.amount_to,
+    );
+
+    const filters = [];
+    if (createdAtOperator) filters.push(createdAtOperator);
+    if (amountOperator) filters.push(amountOperator);
+    if (filters.length !== 0) {
+      if (query.filter) {
+        filters.push(query.filter);
+      }
+      query.filter = filters;
+    }
+    const result = await this.orderRepository.getAllPaginated({
+      ...query,
+      relations: ["items", "user"],
+    });
+    result.data = result.data.map((order) => {
+      return {
+        ...order,
+        total_product: order.items.reduce((total, item) => total + item.quantity, 0),
+      };
+    });
+    return result;
   }
 
   async getOrderOfUser(userId: number) {
@@ -145,6 +187,36 @@ export class OrderUsecases extends BaseUseCases {
     await this.orderRepository.create(order);
     return {
       url: order.online_bank_url,
+    };
+  }
+
+  async UpdateOrderReceiverInfo(
+    user: CurrentUser,
+    orderId: number,
+    dto: UpdateOrderReceiverInfoDto,
+  ) {
+    const order = await this.orderRepository.getOneOrFail({ where: { id: orderId } });
+    if (order.user_id !== user.id && user.role !== EUserRole.ADMIN) {
+      throw new Error("You are not allowed to update this order");
+    }
+
+    order.phone = dto.phone;
+    order.address = dto.address;
+
+    await this.orderRepository.update({ where: { id: order.id } }, order);
+    return {
+      success: true,
+      message: this.i18n.t("ORDER.UPDATE_SUCCESS"),
+    };
+  }
+
+  async UpdateOrderStatus(orderId: number, dto: UpdateOrderStatusDto) {
+    const order = await this.orderRepository.getOneOrFail({ where: { id: orderId } });
+    order.status = dto.status;
+    await this.orderRepository.update({ where: { id: order.id } }, order);
+    return {
+      success: true,
+      message: this.i18n.t("ORDER.UPDATE_SUCCESS"),
     };
   }
 }

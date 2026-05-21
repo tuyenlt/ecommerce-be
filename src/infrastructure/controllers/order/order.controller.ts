@@ -5,6 +5,7 @@ import {
   Get,
   Inject,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -16,7 +17,12 @@ import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
 import { UsecasesProxyModule } from "src/infrastructure/usecases-proxy/modules/usecases-proxy.module";
 import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { OrderUsecases } from "src/usecases/order/order.usecases";
-import { CreateOrderDto, OrderPaginationDto } from "./order.dto";
+import {
+  CreateOrderDto,
+  OrderPaginationDto,
+  UpdateOrderReceiverInfoDto,
+  UpdateOrderStatusDto,
+} from "./order.dto";
 import { RoleGuard } from "src/infrastructure/common/guards/role.guard";
 import { EUserRole } from "src/infrastructure/common/constants/db.constant";
 
@@ -45,7 +51,10 @@ export class OrderController extends BaseController {
     status: 200,
     description: "List of user orders retrieved successfully",
   })
-  async getUserOrders(@UserContext() user: CurrentUser, @Param("user_id") id: number) {
+  async getUserOrders(
+    @UserContext() user: CurrentUser,
+    @Param("user_id", ParseIntPipe) id: number,
+  ) {
     if (user.id !== id) {
       throw new ForbiddenException("You are not allowed to access this user's orders");
     }
@@ -58,8 +67,8 @@ export class OrderController extends BaseController {
     status: 200,
     description: "Order details retrieved successfully",
   })
-  async getOrderById(@Param("id") id: number) {
-    return await this.orderUseCases.getInstance().getOrdersById(id);
+  async getOrderById(@Param("id") id: number, @UserContext() user: CurrentUser) {
+    return await this.orderUseCases.getInstance().getOrdersById(user, id);
   }
 
   @Post()
@@ -80,5 +89,30 @@ export class OrderController extends BaseController {
   })
   async regeneratePaymentUrl(@Param("id") id: number) {
     return await this.orderUseCases.getInstance().reGeneratePaymentUrl(id);
+  }
+
+  @Post("/:id/status")
+  @UseGuards(new RoleGuard(EUserRole.ADMIN))
+  @ApiOperation({ summary: "Update order status" })
+  @ApiResponse({
+    status: 200,
+    description: "Order status updated successfully",
+  })
+  async updateOrderStatus(@Param("id") id: number, @Body() dto: UpdateOrderStatusDto) {
+    return await this.orderUseCases.getInstance().UpdateOrderStatus(id, dto);
+  }
+
+  @Post("/:id/receiver-info")
+  @ApiOperation({ summary: "Update order receiver information" })
+  @ApiResponse({
+    status: 200,
+    description: "Order receiver information updated successfully",
+  })
+  async updateOrderReceiverInfo(
+    @Param("id") id: number,
+    @UserContext() user,
+    @Body() dto: UpdateOrderReceiverInfoDto,
+  ) {
+    return await this.orderUseCases.getInstance().UpdateOrderReceiverInfo(user, id, dto);
   }
 }

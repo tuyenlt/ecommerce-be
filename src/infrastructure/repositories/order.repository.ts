@@ -16,7 +16,32 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
 
   async getOrdersById(orderId: number) {
     const order = await this.getOneById(orderId, {
-      relations: ["items", "items.product"],
+      relations: ["items", "items.product", "user"],
+      select: {
+        id: true,
+        status: true,
+        payment_status: true,
+        payment_method: true,
+        phone: true,
+        address: true,
+        total_amount: true,
+        online_bank_url: true,
+        user: {
+          id: true,
+          email: true,
+          full_name: true,
+        },
+        items: {
+          id: true,
+          quantity: true,
+          price: true,
+          product: {
+            id: true,
+            name: true,
+            images: true,
+          },
+        },
+      },
     });
     return order;
   }
@@ -29,6 +54,9 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
     qb.select([
       "order.id",
       "order.user_id",
+      "order.status",
+      "order.payment_status",
+      "order.payment_method",
       "items.id",
       "items.quantity",
       "items.price",

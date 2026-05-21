@@ -175,12 +175,12 @@ export abstract class BaseCrudRepository<T extends BaseEntity> implements IBaseR
     return repo.save(newEntity);
   }
 
-  async remove(options: FindOrFailOptions<T>, queryRunner?: QueryRunner): Promise<T> {
+  async remove(options: FindOrFailOptions<T>, queryRunner?: QueryRunner): Promise<any> {
     const repo = queryRunner
       ? queryRunner.manager.getRepository(this.repository.target)
       : this.repository;
-    const entity = await this.getOneOrFail(options);
-    return repo.remove(entity);
+    const entities = await this.getAll(options);
+    return repo.remove(entities);
   }
 
   async deleteMany(

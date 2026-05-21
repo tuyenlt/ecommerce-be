@@ -1,6 +1,16 @@
 import { ILike } from "typeorm";
 import { PaginationDto } from "../dtos/base.dto";
 
+// Fields that are enums and should NOT use ILike operator
+const ENUM_FIELDS = [
+  "status",
+  "payment_status",
+  "payment_method",
+  "role",
+  "order_status",
+  "order_payment_status",
+];
+
 export function paginationHelper<T>(
   array: T[],
   paginationDto: PaginationDto,
@@ -22,9 +32,13 @@ export function paginationHelper<T>(
 function processObject(obj: any): any {
   return Object.keys(obj).reduce((acc, key) => {
     const value = obj[key];
-    if (typeof value === "object" && value !== null) {
+
+    // If it's already a FindOperator (like MoreThanOrEqual, LessThan, etc), keep it as is
+    if (value && typeof value === "object" && value["@instanceof"]) {
+      acc[key] = value;
+    } else if (typeof value === "object" && value !== null) {
       acc[key] = processObject(value);
-    } else if (typeof value !== "symbol" && !/id/.test(key)) {
+    } else if (typeof value !== "symbol" && !/id/.test(key) && !ENUM_FIELDS.includes(key)) {
       acc[key] = ILike(`%${value}%`);
     } else {
       acc[key] = value;
