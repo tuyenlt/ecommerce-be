@@ -45,15 +45,22 @@ async function bootstrap() {
     // fs.writeFileSync("./local-docs/swagger-spec.json", JSON.stringify(document, null, 2));
   }
 
+  console.log("CORS enabled for origins:", [
+    "http://localhost:3000",
+    process.env.FRONTEND_URL,
+    process.env.ADMIN_URL,
+    "http://localhost:5173",
+    "http://localhost:5174",
+  ]);
+
   app.enableCors({
     credentials: true,
     origin: [
       "http://localhost:3000",
-      process.env.FRONTEND_URL,
-      process.env.ADMIN_URL,
+      process.env.FRONTEND_URL?.trim(),
+      process.env.ADMIN_URL?.trim(),
       "http://localhost:5173",
       "http://localhost:5174",
-      "http://localhost:8088",
     ],
     // alway enable CORS for all origins
     // origin: "*",
