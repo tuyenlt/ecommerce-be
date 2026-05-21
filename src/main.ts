@@ -61,6 +61,7 @@ async function bootstrap() {
       process.env.ADMIN_URL?.trim(),
       "http://localhost:5173",
       "http://localhost:5174",
+	  "https://admin.ecommerce.tmsherk.id.vn",
     ],
     // alway enable CORS for all origins
     // origin: "*",
