@@ -114,6 +114,10 @@ export class ProductDto {
   @IsOptional()
   color?: string;
 
+  @ApiProperty({ description: "Stock quantity of the product" })
+  @IsOptional()
+  stock: number;
+
   @ApiPropertyOptional({ description: "Image URLs for the product" })
   @IsOptional()
   @IsString()
@@ -124,14 +128,7 @@ export class ProductDto {
   images_files?: Express.Multer.File[];
 }
 
-export class CreateProductDto extends OmitType(ProductDto, ["images_files"]) {
-  @ApiPropertyOptional({ description: "Image files to upload" })
-  @IsOptional()
-  images_files?: Express.Multer.File[];
-}
 
-export class UpdateProductDto extends OmitType(ProductDto, ["images_files"]) {
-  @ApiPropertyOptional({ description: "Image files to upload" })
-  @IsOptional()
-  images_files?: Express.Multer.File[];
+export class UpdateProductDto {
+
 }

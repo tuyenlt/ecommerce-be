@@ -8,10 +8,12 @@ import {
 } from "src/infrastructure/controllers/category/category.dto";
 import { CategoryEntity } from "src/infrastructure/entities/category.entity";
 import { BadRequestException } from "@nestjs/common";
+import { IProductRepository } from "src/domain/repositories/product-repository.interface";
 
 export class CategoryUsecases extends BaseUseCases {
   constructor(
     private readonly categoryRepository: ICategoryRepository,
+    private readonly productRepository: IProductRepository,
     private readonly i18n: I18nService,
     protected readonly dataSource: DataSource,
   ) {
@@ -112,6 +114,16 @@ export class CategoryUsecases extends BaseUseCases {
     const childCategories = await this.categoryRepository.getAll({
       where: { parent_category_id: id },
     });
+    const products = await this.productRepository.getOne({
+      where: {
+        category: {
+          id: id,
+        },
+      },
+    });
+    if (products) {
+      throw new BadRequestException(this.i18n.t("category.HAS_PRODUCTS"));
+    }
     if (childCategories.length > 0) {
       throw new BadRequestException(this.i18n.t("category.HAS_CHILD_CATEGORIES"));
     }

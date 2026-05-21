@@ -9,7 +9,7 @@ import { LocalStorageDriver } from "./local/local-storage.service";
     {
       provide: STORAGE_DRIVER,
       useFactory: () => {
-        return new LocalStorageDriver("storage", process.env.DOMAIN);
+        return new LocalStorageDriver("./uploads", process.env.DOMAIN);
       },
     },
   ],

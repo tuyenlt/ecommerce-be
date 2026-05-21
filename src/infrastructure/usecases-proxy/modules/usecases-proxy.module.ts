@@ -16,6 +16,7 @@ import userUsecasesProvider from "../providers/user-usecases.provider";
 import cartUsecasesProvider from "../providers/cart-usecases.provider";
 import orderUsecasesProvider from "../providers/order-usecases.provider";
 import { OnlineBankingModule } from "src/infrastructure/services/online-banking/online-banking.module";
+import { StorageModule } from "src/infrastructure/services/storage/storage.module";
 @Module({
   imports: [
     LoggerModule,
@@ -26,6 +27,7 @@ import { OnlineBankingModule } from "src/infrastructure/services/online-banking/
     BcryptModule,
     HttpModule,
     OnlineBankingModule,
+    StorageModule,
   ],
   providers: [JwtTokenService],
   exports: [JwtTokenService],

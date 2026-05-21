@@ -22,5 +22,6 @@ export function parseVietnamesePrice(price?: string | null): number {
 }
 
 export function formatVietnamesePrice(price: number): string {
+  if (!price) return "0đ";
   return price.toLocaleString("vi-VN") + "đ";
 }

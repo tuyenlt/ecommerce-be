@@ -8,9 +8,11 @@ import {
   Post,
   Put,
   Query,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { BaseController } from "src/infrastructure/common/controllers/base.controller";
 import { Public } from "src/infrastructure/common/decorators/public.decorator";
 import { UsecasesProxyModule } from "src/infrastructure/usecases-proxy/modules/usecases-proxy.module";
@@ -20,6 +22,7 @@ import { GetListProductDto, ProductDto } from "./product.dto";
 import { RoleGuard } from "src/infrastructure/common/guards/role.guard";
 import { EUserRole } from "src/infrastructure/common/constants/db.constant";
 import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
+import { MulterImagesFilesInterceptor } from "src/infrastructure/config/multer/image-files.interceptor";
 
 @Controller("products")
 @ApiTags("Products")
@@ -47,8 +50,13 @@ export class ProductController extends BaseController {
   @Post()
   @UseGuards(new RoleGuard([EUserRole.ADMIN]))
   @ApiOperation({ summary: "Create a new product" })
-  async createNewProduct(@Body() body: ProductDto) {
-    return await this.productUseCases.getInstance().addProduct(body);
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(MulterImagesFilesInterceptor)
+  async createNewProduct(
+    @Body() body: ProductDto,
+    @UploadedFiles() images_files: Express.Multer.File[],
+  ) {
+    return await this.productUseCases.getInstance().addProduct(body, images_files);
   }
 
   @Get(":id")
@@ -61,8 +69,14 @@ export class ProductController extends BaseController {
   @Put(":id")
   @UseGuards(new RoleGuard([EUserRole.ADMIN]))
   @ApiOperation({ summary: "Update a product by ID" })
-  async updateProduct(@Param("id") id: number, @Body() body: ProductDto) {
-    return await this.productUseCases.getInstance().updateProduct(id, body);
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(MulterImagesFilesInterceptor)
+  async updateProduct(
+    @Param("id") id: number,
+    @Body() body: ProductDto,
+    @UploadedFiles() images_files: Express.Multer.File[],
+  ) {
+    return await this.productUseCases.getInstance().updateProduct(id, body, images_files);
   }
 
   @Delete(":id")

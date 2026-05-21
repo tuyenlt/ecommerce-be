@@ -37,6 +37,7 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
     qb.select([
       "product.id",
       "product.name",
+      "category.name",
       "product.base_price",
       "product.sale_price",
       "product.images",

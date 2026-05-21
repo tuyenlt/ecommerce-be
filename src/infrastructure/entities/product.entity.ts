@@ -49,6 +49,9 @@ export class ProductEntity extends BaseEntity {
   @JoinColumn({ name: "category_id" })
   category?: CategoryEntity;
 
+  @Column({ name: "category_id", type: "bigint", unsigned: true, nullable: true })
+  category_id?: number;
+
   @OneToMany(() => RatingEntity, (rating) => rating.product)
   ratings!: RatingEntity[];
 }

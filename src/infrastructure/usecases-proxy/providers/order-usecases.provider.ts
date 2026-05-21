@@ -8,11 +8,13 @@ import { OrderItemRepository } from "src/infrastructure/repositories/order-item.
 import { VNPayBankingService } from "src/infrastructure/services/online-banking/online-banking.service";
 import { OrderUsecases } from "src/usecases/order/order.usecases";
 import { UseCaseProxy } from "../usecases-proxy";
+import { ProductRepository } from "src/infrastructure/repositories/product.repository";
 
 export default {
   inject: [
     OrderRepository,
     CartRepository,
+    ProductRepository,
     CartItemRepository,
     OrderItemRepository,
     VNPayBankingService,
@@ -23,6 +25,7 @@ export default {
   useFactory: (
     orderRepository: OrderRepository,
     cartRepository: CartRepository,
+    productRepository: ProductRepository,
     cartItemRepository: CartItemRepository,
     orderItemRepository: OrderItemRepository,
     onlineBankingService: VNPayBankingService,
@@ -33,6 +36,7 @@ export default {
       new OrderUsecases(
         orderRepository,
         cartRepository,
+        productRepository,
         cartItemRepository,
         orderItemRepository,
         onlineBankingService,

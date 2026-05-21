@@ -24,11 +24,13 @@ import { EQRType } from "src/infrastructure/common/constants/services.constant";
 import { I18nService } from "nestjs-i18n";
 import { CurrentUser } from "src/infrastructure/common/decorators/user.decorator";
 import { buildRangeQueryOperator } from "src/infrastructure/common/utils/query.ultil";
-import { ForbiddenException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
+import { IProductRepository } from "src/domain/repositories/product-repository.interface";
 export class OrderUsecases extends BaseUseCases {
   constructor(
     private readonly orderRepository: IOrderRepository,
     private readonly cartRepository: ICartRepository,
+    private readonly productRepository: IProductRepository,
     private readonly cartItemRepository: ICartItemRepository,
     private readonly orderItemRepository: IOrderItemRepository,
     private readonly onlineBankingService: IOnlineBankingService,
@@ -123,6 +125,15 @@ export class OrderUsecases extends BaseUseCases {
           },
           EQRType.ORDER_PAYMENT,
         );
+      }
+
+      for (const item of orderItems) {
+        const product = await this.productRepository.getOneByIdOrFail(item.product_id);
+        if (product.stock < item.quantity) {
+          throw new BadRequestException(this.i18n.t("ORDER.INSUFFICIENT_STOCK"));
+        }
+        product.stock -= item.quantity;
+        await this.productRepository.update({ where: { id: product.id } }, product, queryRunner);
       }
 
       if (order.payment_method === EPaymentMethod.COD) {
