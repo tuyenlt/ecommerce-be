@@ -133,6 +133,7 @@ export class OrderUsecases extends BaseUseCases {
           throw new BadRequestException(this.i18n.t("ORDER.INSUFFICIENT_STOCK"));
         }
         product.stock -= item.quantity;
+        product.purchased += item.quantity;
         await this.productRepository.update({ where: { id: product.id } }, product, queryRunner);
       }
 

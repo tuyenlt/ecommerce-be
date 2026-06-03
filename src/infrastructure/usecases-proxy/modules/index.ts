@@ -6,4 +6,5 @@ export class ProxyModule {
   public static USER_USECASES = "USER_USECASES";
   public static CART_USECASES = "CART_USECASES";
   public static ORDER_USECASES = "ORDER_USECASES";
+  public static STAT_USECASES = "STAT_USECASES";
 }

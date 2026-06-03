@@ -15,8 +15,10 @@ import { HttpModule } from "@nestjs/axios";
 import userUsecasesProvider from "../providers/user-usecases.provider";
 import cartUsecasesProvider from "../providers/cart-usecases.provider";
 import orderUsecasesProvider from "../providers/order-usecases.provider";
+import statUsecasesProvider from "../providers/stat-usecases.provider";
 import { OnlineBankingModule } from "src/infrastructure/services/online-banking/online-banking.module";
 import { StorageModule } from "src/infrastructure/services/storage/storage.module";
+import { DataProcessingModule } from "src/infrastructure/services/data-processing/data-processing.module";
 @Module({
   imports: [
     LoggerModule,
@@ -28,6 +30,7 @@ import { StorageModule } from "src/infrastructure/services/storage/storage.modul
     HttpModule,
     OnlineBankingModule,
     StorageModule,
+    DataProcessingModule,
   ],
   providers: [JwtTokenService],
   exports: [JwtTokenService],
@@ -45,6 +48,7 @@ export class UsecasesProxyModule extends ProxyModule {
         userUsecasesProvider,
         cartUsecasesProvider,
         orderUsecasesProvider,
+        statUsecasesProvider,
       ],
       exports: Object.values(ProxyModule),
     };

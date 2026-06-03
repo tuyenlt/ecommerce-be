@@ -12,6 +12,7 @@ export class ModifyPagingFilterPipe implements PipeTransform {
     //
   }
   transform(data: Record<string, unknown>, metadata: ArgumentMetadata) {
+    if (!data) return;
     if (metadata.type === "query") {
       if (!data.page) {
         data.page = PAGINATION_PAGE_DEFAULT;

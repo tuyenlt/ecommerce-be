@@ -85,4 +85,15 @@ export class ProductController extends BaseController {
   async deleteProduct(@Param("id") id: number) {
     return await this.productUseCases.getInstance().deleteProduct(id);
   }
+
+  @Get("update-vector/all")
+  @UseGuards(new RoleGuard([EUserRole.ADMIN]))
+  @ApiOperation({ summary: "Update vector of products" })
+  @ApiResponse({
+    status: 200,
+    description: "Vector of products updated successfully",
+  })
+  async updateVector() {
+    return await this.productUseCases.getInstance().updateAllVector();
+  }
 }

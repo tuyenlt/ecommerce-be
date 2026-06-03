@@ -127,8 +127,3 @@ export class ProductDto {
   @IsOptional()
   images_files?: Express.Multer.File[];
 }
-
-
-export class UpdateProductDto {
-
-}

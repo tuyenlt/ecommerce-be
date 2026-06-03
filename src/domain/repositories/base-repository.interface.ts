@@ -198,4 +198,6 @@ export interface IBaseRepository<T extends BaseEntity> {
    * @example service.getOneOrCreate({ where: { name: 'John Doe' } }, { name: 'John Doe' })
    */
   getOneOrCreate(options: FindOptions<T>, data?: DeepPartial<T>): Promise<T>;
+
+  query(sqlString: string, parameters?: any[]): Promise<any>;
 }

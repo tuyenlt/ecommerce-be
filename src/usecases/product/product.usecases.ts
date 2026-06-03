@@ -10,6 +10,8 @@ import { IRatingRepository } from "src/domain/repositories/ratting-repository.in
 import { formatVietnamesePrice } from "src/infrastructure/common/utils/common.util";
 import { MULTER_IMAGES_DESTINATION } from "src/infrastructure/config/multer/image-files.interceptor";
 import { IStorageDriver } from "src/infrastructure/services/storage/storage.interface";
+import { DataProcessingService } from "src/infrastructure/services/data-processing/data-processing.service";
+import { IProductVectorRepository } from "src/domain/repositories/product-vector-repository.interface";
 
 export class ProductUsecases extends BaseUseCases {
   constructor(
@@ -17,6 +19,8 @@ export class ProductUsecases extends BaseUseCases {
     private readonly categoryRepository: ICategoryRepository,
     private readonly rattingRepository: IRatingRepository,
     private readonly storageService: IStorageDriver,
+    private readonly dataProcessingService: DataProcessingService,
+    private readonly productVectorRepository: IProductVectorRepository,
     private readonly i18n: I18nService,
     protected readonly dataSource: DataSource,
   ) {
@@ -78,7 +82,9 @@ export class ProductUsecases extends BaseUseCases {
     );
     product.images = JSON.stringify(imageUrls);
 
-    return await this.productRepository.create(product);
+    const productNew = await this.productRepository.create(product);
+    this.upsertProductVector([productNew]);
+    return productNew;
   }
 
   async updateProduct(id: number, body: ProductDto, images_files: Express.Multer.File[]) {
@@ -109,6 +115,7 @@ export class ProductUsecases extends BaseUseCases {
     }
     product.images = JSON.stringify(newImageUrls);
     await this.productRepository.update({ where: { id } }, product);
+    await this.upsertProductVector([product]);
     return {
       message: this.i18n.t("product.PRODUCT_UPDATED_SUCCESSFULLY"),
     };
@@ -125,5 +132,74 @@ export class ProductUsecases extends BaseUseCases {
       throw new BadRequestException(this.i18n.t("product.PRODUCT_NOT_FOUND"));
     }
     return product;
+  }
+
+  async updateAllVector() {
+    const batchSize = 100;
+    let page = 1;
+    let hasMore = true;
+    while (hasMore) {
+      const res = await this.productRepository.getAllPaginated({
+        page,
+        limit: batchSize,
+        relations: ["category"],
+      });
+      await this.upsertProductVector(res.data);
+
+      if (res.pagination.total < batchSize * page) {
+        hasMore = false;
+      } else {
+        page++;
+      }
+    }
+  }
+
+  private async upsertProductVector(products: ProductEntity[]) {
+    for (const product of products) {
+      const text = await this.dataProcessingService.createProductTextForEmbedding(product);
+      const embedResult = await this.dataProcessingService.createEmbeddingPassage(text);
+      const exists = await this.productVectorRepository.getOne({
+        where: { product_id: product.id },
+      });
+      if (exists) {
+        await this.productVectorRepository.update(
+          { where: { product_id: product.id } },
+          { embedding_text: text, vector: embedResult },
+        );
+      } else {
+        await this.productVectorRepository.create({
+          product_id: product.id,
+          embedding_text: text,
+          vector: embedResult,
+        });
+      }
+    }
+  }
+
+  async topKVectorSearch(query: string, k: number) {
+    const vector = await this.dataProcessingService.createEmbeddingQuery(query);
+    const result = await this.productVectorRepository.query(
+      `
+      SELECT product_id, embedding_text, vector
+      FROM product_vectors
+      ORDER BY vector <-> '[${vector}]'
+      LIMIT $1
+    `,
+      [k],
+    );
+    return result.map((item) => {
+      return {
+        product_id: item.product_id,
+        embedding_text: item.embedding_text,
+        score: this.cosineSimilarity(vector, JSON.parse(item.vector)),
+      };
+    });
+  }
+
+  private cosineSimilarity(vectorA: number[], vectorB: number[]): number {
+    const dotProduct = vectorA.reduce((sum, val, i) => sum + val * vectorB[i], 0);
+    const magnitudeA = Math.sqrt(vectorA.reduce((sum, val) => sum + val * val, 0));
+    const magnitudeB = Math.sqrt(vectorB.reduce((sum, val) => sum + val * val, 0));
+    return dotProduct / (magnitudeA * magnitudeB);
   }
 }

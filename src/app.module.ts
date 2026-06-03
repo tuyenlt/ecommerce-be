@@ -17,6 +17,7 @@ import { JwtAuthGuard } from "./infrastructure/common/guards/jwtAuth.guard";
 import { GoogleStrategy } from "./infrastructure/common/strategies/google-oauth2.stategy";
 import { join } from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
+import { ChatModule } from "./infrastructure/chat/chat.module";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ServeStaticModule } from "@nestjs/serve-static";
     ExceptionsModule,
     UsecasesProxyModule.register(),
     ControllersModule,
+    ChatModule,
     JwtServiceModule,
     EnvironmentConfigModule,
     CustomI18nModule,

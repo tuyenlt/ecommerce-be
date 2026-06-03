@@ -7,6 +7,7 @@ export enum ETableName {
   ORDER = "orders",
   CART = "carts",
   CART_ITEM = "cart_items",
+  PRODUCT_VECTOR = "product_vectors",
 }
 
 export enum EUserRole {

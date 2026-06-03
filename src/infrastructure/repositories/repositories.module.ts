@@ -17,6 +17,8 @@ import { CartItemEntity } from "../entities/cart-item.entity";
 import { OrderItemEntity } from "../entities/order-item.entity";
 import { CartItemRepository } from "./cart-item.repository";
 import { OrderItemRepository } from "./order-item.repository";
+import { ProductVectorEntity } from "../entities/product-vector.entity";
+import { ProductVectorRepository } from "./product-vector.repository";
 
 @Module({
   imports: [
@@ -30,6 +32,7 @@ import { OrderItemRepository } from "./order-item.repository";
       OrderEntity,
       CartItemEntity,
       OrderItemEntity,
+      ProductVectorEntity,
     ]),
   ],
   providers: [
@@ -41,6 +44,7 @@ import { OrderItemRepository } from "./order-item.repository";
     OrderRepository,
     CartItemRepository,
     OrderItemRepository,
+    ProductVectorRepository,
   ],
   exports: [
     UserRepository,
@@ -51,6 +55,7 @@ import { OrderItemRepository } from "./order-item.repository";
     OrderRepository,
     CartItemRepository,
     OrderItemRepository,
+    ProductVectorRepository,
   ],
 })
 export class RepositoriesModule {}

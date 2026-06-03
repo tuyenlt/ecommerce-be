@@ -8,6 +8,7 @@ import { UserController } from "./user/user.controller";
 import { CartController } from "./cart/cart.controller";
 import { OrderController } from "./order/order.controller";
 import { PaymentController } from "./payment/payment.controller";
+import { StatController } from "./stat/stat.controller";
 import { OnlineBankingModule } from "../services/online-banking/online-banking.module";
 
 @Module({
@@ -21,6 +22,7 @@ import { OnlineBankingModule } from "../services/online-banking/online-banking.m
     CartController,
     OrderController,
     PaymentController,
+    StatController,
   ],
 })
 export class ControllersModule {}
