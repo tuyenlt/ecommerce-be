@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { UserEntity } from "./user.entity";
 import { BaseEntity } from "./base.entity";
 import { ProductEntity } from "./product.entity";
@@ -22,8 +22,10 @@ export class RatingEntity extends BaseEntity {
   model_rating: number;
 
   @ManyToOne(() => ProductEntity, (product) => product.ratings)
+  @JoinColumn({ name: "product_id" })
   product!: ProductEntity;
 
   @ManyToOne(() => UserEntity, (user) => user.ratings)
+  @JoinColumn({ name: "user_id" })
   user!: UserEntity;
 }

@@ -59,6 +59,17 @@ export class ProductController extends BaseController {
     return await this.productUseCases.getInstance().addProduct(body, images_files);
   }
 
+  @Get("update-vector/all")
+  @UseGuards(new RoleGuard([EUserRole.ADMIN]))
+  @ApiOperation({ summary: "Update vector of products" })
+  @ApiResponse({
+    status: 200,
+    description: "Vector of products updated successfully",
+  })
+  async updateVector() {
+    return await this.productUseCases.getInstance().updateAllVector();
+  }
+
   @Get(":id")
   @Public()
   @ApiOperation({ summary: "Get a product by ID" })
@@ -84,16 +95,5 @@ export class ProductController extends BaseController {
   @ApiOperation({ summary: "Delete a product by ID" })
   async deleteProduct(@Param("id") id: number) {
     return await this.productUseCases.getInstance().deleteProduct(id);
-  }
-
-  @Get("update-vector/all")
-  @UseGuards(new RoleGuard([EUserRole.ADMIN]))
-  @ApiOperation({ summary: "Update vector of products" })
-  @ApiResponse({
-    status: 200,
-    description: "Vector of products updated successfully",
-  })
-  async updateVector() {
-    return await this.productUseCases.getInstance().updateAllVector();
   }
 }

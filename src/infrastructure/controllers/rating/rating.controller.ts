@@ -14,9 +14,12 @@ import { BaseController } from "src/infrastructure/common/controllers/base.contr
 import { UsecasesProxyModule } from "src/infrastructure/usecases-proxy/modules/usecases-proxy.module";
 import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { RatingUsecases } from "src/usecases/rating/rating.usecases";
-import { CreateRatingDto, ListRatingDto } from "./rating.dto";
+import { CreateRatingDto, ListRatingDto, ListRatingForAdminDto } from "./rating.dto";
 import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
 import { Public } from "src/infrastructure/common/decorators/public.decorator";
+import { RoleGuard } from "src/infrastructure/common/guards/role.guard";
+import { EUserRole } from "src/infrastructure/common/constants/db.constant";
+import { CurrentUser, UserContext } from "src/infrastructure/common/decorators/user.decorator";
 
 @Controller("ratings")
 @ApiTags("Ratings")
@@ -34,6 +37,14 @@ export class RatingController extends BaseController {
   @ApiOperation({ summary: "Get list of ratings" })
   async getList(@Query() query: ListRatingDto) {
     return this.ratingUseCases.getInstance().getListRating(query);
+  }
+
+  @Get("admin")
+  @UseGuards(new RoleGuard(EUserRole.ADMIN))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Get list of ratings for admin" })
+  async getListForAdmin(@Query() query: ListRatingForAdminDto) {
+    return this.ratingUseCases.getInstance().getListRattingForAdmin(query);
   }
 
   @Get(":id")
@@ -54,7 +65,7 @@ export class RatingController extends BaseController {
   @Delete(":id")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Delete rating" })
-  async delete(@Param("id") id: number) {
-    return this.ratingUseCases.getInstance().deleteRating(id);
+  async delete(@Param("id") id: number, @UserContext() user: CurrentUser) {
+    return this.ratingUseCases.getInstance().deleteRating(id, user);
   }
 }

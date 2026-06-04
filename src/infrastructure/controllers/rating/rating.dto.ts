@@ -36,3 +36,5 @@ export class TestModelRatingDto {
   @ApiProperty({ description: "Review comment" })
   comment: string;
 }
+
+export class ListRatingForAdminDto extends PaginationDto<RatingEntity> {}
