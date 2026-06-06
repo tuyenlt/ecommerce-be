@@ -1,9 +1,10 @@
-import { Controller, Post, Body, UseGuards } from "@nestjs/common";
+import { Controller, Post, Body, UseGuards, Res } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ChatService } from "./chat.service";
 import { ChatMessageDto } from "./dtos/chat.dto";
 import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
 import { UserContext } from "src/infrastructure/common/decorators/user.decorator";
+import { Response } from "express";
 
 @Controller("chat")
 @ApiTags("Chat")
@@ -11,43 +12,6 @@ import { UserContext } from "src/infrastructure/common/decorators/user.decorator
 @ApiBearerAuth()
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
-
-  @Post("search-products")
-  @ApiOperation({
-    summary: "Search products using AI chat",
-    description: "Send a natural language message to search for products using AI",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Chat response with product search results",
-    schema: {
-      example: {
-        text: "Tôi tìm thấy 5 sản phẩm phù hợp với yêu cầu của bạn...",
-        toolResults: [
-          {
-            toolName: "search_products",
-            result: {
-              data: [
-                {
-                  id: 1,
-                  name: "Áo thun đỏ",
-                  base_price: "250.000 VND",
-                  sale_price: "200.000 VND",
-                  color: "Đỏ",
-                },
-              ],
-              total: 1,
-              page: 1,
-              limit: 10,
-            },
-          },
-        ],
-      },
-    },
-  })
-  async searchProducts(@Body() dto: ChatMessageDto, @UserContext() user: any) {
-    return await this.chatService.chat(dto.message, user);
-  }
 
   @Post("message")
   @ApiOperation({
@@ -66,5 +30,28 @@ export class ChatController {
   })
   async chat(@Body() dto: ChatMessageDto, @UserContext() user: any) {
     return await this.chatService.chat(dto.message, user);
+  }
+
+  @Post("stream")
+  @ApiOperation({
+    summary: "Stream AI chat assistant responses",
+    description:
+      "Stream responses from the AI assistant chunk-by-chunk using Server-Sent Events (SSE)",
+  })
+  async chatStream(@Body() dto: ChatMessageDto, @UserContext() user: any, @Res() res: Response) {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    try {
+      const generator = this.chatService.chatStream(dto.message, user);
+      for await (const chunk of generator) {
+        res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+      }
+    } catch (error: any) {
+      res.write(`data: ${JSON.stringify({ event: "error", data: error.message })}\n\n`);
+    } finally {
+      res.end();
+    }
   }
 }

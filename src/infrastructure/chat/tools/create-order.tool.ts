@@ -32,7 +32,7 @@ export const createOrderTool: FunctionDeclaration = {
       payment_method: {
         type: Type.STRING,
         description: "Phương thức thanh toán",
-        enum: ["COD", "ONLINE_BANKING"],
+        enum: ["cod", "online_banking"],
       },
     },
     required: ["cart_items_ids", "address", "phone", "payment_method"],

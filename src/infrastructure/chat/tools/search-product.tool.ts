@@ -3,7 +3,7 @@ import { FunctionDeclaration, Type } from "@google/genai";
 export const searchProductsTool: FunctionDeclaration = {
   name: "search_products",
   description:
-    'Tìm kiếm sản phẩm theo tên, màu sắc, giá hoặc đặc điểm mà khách hàng yêu cầu. Bạn có thể trích xuất các thông tin chi tiết của sản phẩm (như cấu hình, thông số, tính năng, mô tả) từ trường description và specs trong kết quả trả về để tư vấn. Khi trả lời phải kèm theo id sản phẩm với dạng "product_id: {id}".',
+    "Tìm kiếm sản phẩm theo tên, màu sắc, giá hoặc đặc điểm mà khách hàng yêu cầu. Bạn có thể trích xuất các thông tin chi tiết của sản phẩm (như cấu hình, thông số, tính năng, mô tả) từ trường description và specs trong kết quả trả về để tư vấn.",
   response: {
     type: Type.OBJECT,
     properties: {
@@ -36,11 +36,13 @@ export const searchProductsTool: FunctionDeclaration = {
       },
       minPrice: {
         type: Type.NUMBER,
-        description: "Giá tối thiểu (VND)",
+        description: "Giá tối thiểu (VND), để null nếu không có",
+        nullable: true,
       },
       maxPrice: {
         type: Type.NUMBER,
-        description: "Giá tối đa (VND)",
+        description: "Giá tối đa (VND), để null nếu không có",
+        nullable: true,
       },
       sortBy: {
         type: Type.STRING,
