@@ -66,6 +66,14 @@ export class GetListProductDto extends OmitType(PaginationDto<ProductEntity>, [
   })
   onSale?: boolean;
 
+  @ApiPropertyOptional({ description: "Filter by active flash sale status" })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === "string") return value.toLowerCase() === "true";
+    return value;
+  })
+  onFlashSale?: boolean;
+
   category_path?: string;
 }
 

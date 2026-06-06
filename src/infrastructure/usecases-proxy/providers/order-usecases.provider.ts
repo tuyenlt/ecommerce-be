@@ -9,6 +9,7 @@ import { VNPayBankingService } from "src/infrastructure/services/online-banking/
 import { OrderUsecases } from "src/usecases/order/order.usecases";
 import { UseCaseProxy } from "../usecases-proxy";
 import { ProductRepository } from "src/infrastructure/repositories/product.repository";
+import { ApiClientService } from "src/infrastructure/services/api-client/api-client.service";
 
 export default {
   inject: [
@@ -18,6 +19,7 @@ export default {
     CartItemRepository,
     OrderItemRepository,
     VNPayBankingService,
+    ApiClientService,
     I18nService,
     DataSource,
   ],
@@ -29,6 +31,7 @@ export default {
     cartItemRepository: CartItemRepository,
     orderItemRepository: OrderItemRepository,
     onlineBankingService: VNPayBankingService,
+    apiClientService: ApiClientService,
     i18n: I18nService,
     dataSource: DataSource,
   ) => {
@@ -40,6 +43,7 @@ export default {
         cartItemRepository,
         orderItemRepository,
         onlineBankingService,
+        apiClientService,
         i18n,
         dataSource,
       ),

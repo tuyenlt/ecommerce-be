@@ -23,6 +23,10 @@ import { BannerEntity } from "../entities/banner.entity";
 import { BannerRepository } from "./banner.repository";
 import { ContactMessageEntity } from "../entities/contact-message.entity";
 import { ContactMessageRepository } from "./contact-message.repository";
+import { FlashSaleEntity } from "../entities/flash-sale.entity";
+import { FlashSaleItemEntity } from "../entities/flash-sale-item.entity";
+import { FlashSaleRepository } from "./flash-sale.repository";
+import { FlashSaleItemRepository } from "./flash-sale-item.repository";
 
 @Module({
   imports: [
@@ -39,6 +43,8 @@ import { ContactMessageRepository } from "./contact-message.repository";
       ProductVectorEntity,
       BannerEntity,
       ContactMessageEntity,
+      FlashSaleEntity,
+      FlashSaleItemEntity,
     ]),
   ],
   providers: [
@@ -53,6 +59,8 @@ import { ContactMessageRepository } from "./contact-message.repository";
     ProductVectorRepository,
     BannerRepository,
     ContactMessageRepository,
+    FlashSaleRepository,
+    FlashSaleItemRepository,
   ],
   exports: [
     UserRepository,
@@ -66,6 +74,8 @@ import { ContactMessageRepository } from "./contact-message.repository";
     ProductVectorRepository,
     BannerRepository,
     ContactMessageRepository,
+    FlashSaleRepository,
+    FlashSaleItemRepository,
   ],
 })
 export class RepositoriesModule {}

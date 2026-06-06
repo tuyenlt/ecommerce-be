@@ -19,6 +19,8 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
   async getListPagination(query: GetListProductDto): Promise<PaginationDetails> {
     const qb = this.productRepository.createQueryBuilder("product");
     qb.leftJoinAndSelect("product.category", "category");
+    qb.leftJoinAndSelect("product.flash_sale_item", "flash_sale_item");
+    qb.leftJoinAndSelect("flash_sale_item.flash_sale", "flash_sale");
     qb.skip((query.page - 1) * query.limit).take(query.limit);
 
     if (query.name) {
@@ -32,6 +34,14 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
     }
     if (query.maxPrice) {
       qb.andWhere("product.base_price <= :maxPrice", { maxPrice: query.maxPrice });
+    }
+
+    if (query.onFlashSale) {
+      const now = new Date();
+      qb.andWhere("flash_sale.is_active = :isActive", { isActive: true });
+      qb.andWhere("flash_sale.start_time <= :now", { now });
+      qb.andWhere("flash_sale.end_time >= :now", { now });
+      qb.andWhere("flash_sale_item.quantity > :zero", { zero: 0 });
     }
 
     qb.select([
@@ -48,7 +58,16 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
       "product.stock",
       "product.category_id",
       "product.avg_rating",
+      "flash_sale_item.id",
+      "flash_sale_item.price",
+      "flash_sale_item.quantity",
+      "flash_sale.id",
+      "flash_sale.name",
+      "flash_sale.start_time",
+      "flash_sale.end_time",
+      "flash_sale.is_active",
     ]);
+
     if (!query.sortBy) {
       query.sortBy = EProductSortBy.CREATED_AT;
     }

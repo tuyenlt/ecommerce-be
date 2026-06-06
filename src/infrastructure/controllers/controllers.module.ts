@@ -11,6 +11,7 @@ import { PaymentController } from "./payment/payment.controller";
 import { StatController } from "./stat/stat.controller";
 import { BannerController } from "./banner/banner.controller";
 import { SupportChatController } from "./support-chat/support-chat.controller";
+import { FlashSaleController } from "./flash-sale/flash-sale.controller";
 import { OnlineBankingModule } from "../services/online-banking/online-banking.module";
 
 @Module({
@@ -27,6 +28,7 @@ import { OnlineBankingModule } from "../services/online-banking/online-banking.m
     StatController,
     BannerController,
     SupportChatController,
+    FlashSaleController,
   ],
 })
 export class ControllersModule {}

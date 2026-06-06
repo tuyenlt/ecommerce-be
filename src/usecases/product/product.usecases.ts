@@ -43,10 +43,28 @@ export class ProductUsecases extends BaseUseCases {
     const result = await this.productRepository.getListPagination(query);
 
     result.data = result.data.map((product) => {
+      const now = new Date();
+      const flashSale =
+        product.flash_sale_item &&
+        product.flash_sale_item.flash_sale &&
+        product.flash_sale_item.flash_sale.is_active &&
+        new Date(product.flash_sale_item.flash_sale.start_time) <= now &&
+        new Date(product.flash_sale_item.flash_sale.end_time) >= now
+          ? {
+              id: product.flash_sale_item.flash_sale.id,
+              name: product.flash_sale_item.flash_sale.name,
+              price: product.flash_sale_item.price,
+              quantity: product.flash_sale_item.quantity,
+              start_time: product.flash_sale_item.flash_sale.start_time,
+              end_time: product.flash_sale_item.flash_sale.end_time,
+            }
+          : null;
+
       return {
         ...product,
         base_price: formatVietnamesePrice(product.base_price),
         sale_price: formatVietnamesePrice(product.sale_price),
+        flash_sale: flashSale,
       };
     });
 
@@ -54,11 +72,32 @@ export class ProductUsecases extends BaseUseCases {
   }
 
   async getProductById(id: number) {
-    const product = await this.findOneByIdOrFail(id);
+    const product = await this.findOneByIdOrFail(id, [
+      "flash_sale_item",
+      "flash_sale_item.flash_sale",
+    ]);
+    const now = new Date();
+    const flashSale =
+      product.flash_sale_item &&
+      product.flash_sale_item.flash_sale &&
+      product.flash_sale_item.flash_sale.is_active &&
+      new Date(product.flash_sale_item.flash_sale.start_time) <= now &&
+      new Date(product.flash_sale_item.flash_sale.end_time) >= now
+        ? {
+            id: product.flash_sale_item.flash_sale.id,
+            name: product.flash_sale_item.flash_sale.name,
+            price: product.flash_sale_item.price,
+            quantity: product.flash_sale_item.quantity,
+            start_time: product.flash_sale_item.flash_sale.start_time,
+            end_time: product.flash_sale_item.flash_sale.end_time,
+          }
+        : null;
+
     return {
       ...product,
       base_price: formatVietnamesePrice(product.base_price),
       sale_price: formatVietnamesePrice(product.sale_price),
+      flash_sale: flashSale,
     };
   }
 
@@ -126,8 +165,8 @@ export class ProductUsecases extends BaseUseCases {
     await this.productRepository.removeById(id);
   }
 
-  private async findOneByIdOrFail(id: number): Promise<ProductEntity> {
-    const product = await this.productRepository.getOne({ where: { id } });
+  private async findOneByIdOrFail(id: number, relations: string[] = []): Promise<ProductEntity> {
+    const product = await this.productRepository.getOne({ where: { id }, relations });
     if (!product) {
       throw new BadRequestException(this.i18n.t("product.PRODUCT_NOT_FOUND"));
     }

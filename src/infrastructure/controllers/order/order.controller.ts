@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { BaseController } from "src/infrastructure/common/controllers/base.controller";
 import { CurrentUser, UserContext } from "src/infrastructure/common/decorators/user.decorator";
 import { JwtAuthGuard } from "src/infrastructure/common/guards/jwtAuth.guard";
@@ -19,6 +19,7 @@ import { UseCaseProxy } from "src/infrastructure/usecases-proxy/usecases-proxy";
 import { OrderUsecases } from "src/usecases/order/order.usecases";
 import {
   CreateOrderDto,
+  GetShippingFeeDto,
   OrderPaginationDto,
   UpdateOrderReceiverInfoDto,
   UpdateOrderStatusDto,
@@ -36,6 +37,15 @@ export class OrderController extends BaseController {
     private readonly orderUseCases: UseCaseProxy<OrderUsecases>,
   ) {
     super();
+  }
+  @Get("shipping-fee")
+  @ApiOperation({ summary: "Calculate shipping fee for an address" })
+  @ApiQuery({ name: "address", type: "string" })
+  async calculateShippingFee(@Query() dto: GetShippingFeeDto) {
+    const shippingFee = await this.orderUseCases.getInstance().calculateShippingFee(dto.address);
+    return {
+      shipping_fee: shippingFee,
+    };
   }
 
   @Get("/")

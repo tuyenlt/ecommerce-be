@@ -40,4 +40,14 @@ export class CartItemsResponseDto {
 
   @ApiProperty({ description: "The quantity of the product", example: 2 })
   quantity: number;
+
+  @ApiPropertyOptional({ description: "Flash sale details if currently active" })
+  flash_sale?: {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+    start_time: Date;
+    end_time: Date;
+  } | null;
 }

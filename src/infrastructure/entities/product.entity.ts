@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { RatingEntity } from "./rating.entity";
 import { CategoryEntity } from "./category.entity";
 import { BaseEntity } from "./base.entity";
 import { ETableName } from "../common/constants/db.constant";
+import { FlashSaleItemEntity } from "./flash-sale-item.entity";
 
 @Entity(ETableName.PRODUCT)
 export class ProductEntity extends BaseEntity {
@@ -54,4 +55,20 @@ export class ProductEntity extends BaseEntity {
 
   @OneToMany(() => RatingEntity, (rating) => rating.product)
   ratings!: RatingEntity[];
+
+  @OneToOne(() => FlashSaleItemEntity, (item) => item.product, { nullable: true })
+  @JoinColumn({ name: "flash_sale_item_id" })
+  flash_sale_item?: FlashSaleItemEntity;
+
+  @Column({ name: "flash_sale_item_id", type: "int", nullable: true })
+  flash_sale_item_id?: number;
+
+  flash_sale?: {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+    start_time: Date;
+    end_time: Date;
+  } | null;
 }

@@ -5,6 +5,11 @@ export enum ORDER_DIRECTION {
   DESC = "DESC",
 }
 
+export const STORE_LAT = 20.9707472;
+export const STORE_LNG = 105.7888318;
+export const MIN_SHIPPING_FEE = 10000;
+export const RATE_PER_KM = 3000;
+
 export const HTTP_STATUS_CODE = {
   OK: 200,
   CREATED: 201,

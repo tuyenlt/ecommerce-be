@@ -71,3 +71,11 @@ export class UpdateOrderReceiverInfoDto {
   })
   address: string;
 }
+
+export class GetShippingFeeDto {
+  @ApiProperty({
+    description: "The shipping address for the order",
+    example: "123 Main St, City, Country",
+  })
+  address: string;
+}

@@ -26,6 +26,13 @@ import { CurrentUser } from "src/infrastructure/common/decorators/user.decorator
 import { buildRangeQueryOperator } from "src/infrastructure/common/utils/query.ultil";
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { IProductRepository } from "src/domain/repositories/product-repository.interface";
+import { ApiClientService } from "src/infrastructure/services/api-client/api-client.service";
+import {
+  MIN_SHIPPING_FEE,
+  RATE_PER_KM,
+  STORE_LAT,
+  STORE_LNG,
+} from "src/infrastructure/common/constants/common.constant";
 export class OrderUsecases extends BaseUseCases {
   constructor(
     private readonly orderRepository: IOrderRepository,
@@ -34,6 +41,7 @@ export class OrderUsecases extends BaseUseCases {
     private readonly cartItemRepository: ICartItemRepository,
     private readonly orderItemRepository: IOrderItemRepository,
     private readonly onlineBankingService: IOnlineBankingService,
+    private readonly apiClientService: ApiClientService,
     private readonly i18n: I18nService,
     protected readonly dataSource: DataSource,
   ) {
@@ -88,18 +96,38 @@ export class OrderUsecases extends BaseUseCases {
   async createOrderFromCart(userId: number, dto: CreateOrderDto) {
     const cartItems = await this.cartItemRepository.getAll({
       where: { id: In(dto.cart_items_ids) },
-      relations: ["product"],
+      relations: ["product", "product.flash_sale_item", "product.flash_sale_item.flash_sale"],
     });
 
     return await this.executeTransaction(async (queryRunner) => {
       const orderItems = cartItems.map((item) => {
         const orderItem = new OrderItemEntity();
-        orderItem.product_id = item.product_id;
-        orderItem.quantity = item.quantity;
-        orderItem.price = item.price_at_time;
         orderItem.product_id = item.product.id;
         orderItem.product_name = item.product.name;
         orderItem.quantity = item.quantity;
+
+        // Check if there is an active flash sale for this product
+        const now = new Date();
+        const flashSaleItem = item.product.flash_sale_item;
+        const flashSale = flashSaleItem?.flash_sale;
+        const isFlashSaleActive =
+          flashSaleItem &&
+          flashSale &&
+          flashSale.is_active &&
+          new Date(flashSale.start_time) <= now &&
+          new Date(flashSale.end_time) >= now;
+
+        if (isFlashSaleActive) {
+          if (flashSaleItem.quantity < item.quantity) {
+            throw new BadRequestException(
+              `Sản phẩm ${item.product.name} trong Flash Sale chỉ còn ${flashSaleItem.quantity} sản phẩm.`,
+            );
+          }
+          orderItem.price = flashSaleItem.price;
+        } else {
+          orderItem.price = item.price_at_time;
+        }
+
         return orderItem;
       });
 
@@ -108,10 +136,10 @@ export class OrderUsecases extends BaseUseCases {
       order.address = dto.address;
       order.phone = dto.phone;
       order.payment_method = dto.payment_method;
-      order.shipping_fee = 0;
+      order.shipping_fee = await this.calculateShippingFee(dto.address);
       order.total_amount = orderItems.reduce(
         (total, item) => total + item.price * item.quantity,
-        0,
+        order.shipping_fee,
       );
 
       if (order.payment_method === EPaymentMethod.ONLINE_BANKING) {
@@ -129,12 +157,36 @@ export class OrderUsecases extends BaseUseCases {
       }
 
       for (const item of orderItems) {
-        const product = await this.productRepository.getOneByIdOrFail(item.product_id);
+        const product = await this.productRepository.getOneByIdOrFail(item.product_id, {
+          relations: ["flash_sale_item", "flash_sale_item.flash_sale"],
+        });
         if (product.stock < item.quantity) {
           throw new BadRequestException(this.i18n.t("ORDER.INSUFFICIENT_STOCK"));
         }
         product.stock -= item.quantity;
         product.purchased += item.quantity;
+
+        // Deduct flash sale stock if applicable
+        const now = new Date();
+        const flashSaleItem = product.flash_sale_item;
+        const flashSale = flashSaleItem?.flash_sale;
+        const isFlashSaleActive =
+          flashSaleItem &&
+          flashSale &&
+          flashSale.is_active &&
+          new Date(flashSale.start_time) <= now &&
+          new Date(flashSale.end_time) >= now;
+
+        if (isFlashSaleActive) {
+          if (flashSaleItem.quantity < item.quantity) {
+            throw new BadRequestException(
+              `Sản phẩm ${product.name} trong Flash Sale chỉ còn ${flashSaleItem.quantity} sản phẩm.`,
+            );
+          }
+          flashSaleItem.quantity -= item.quantity;
+          await queryRunner.manager.save(flashSaleItem);
+        }
+
         await this.productRepository.update({ where: { id: product.id } }, product, queryRunner);
       }
 
@@ -164,6 +216,42 @@ export class OrderUsecases extends BaseUseCases {
         message: this.i18n.t("ORDER.CREATE_SUCCESS"),
       };
     });
+  }
+
+  async calculateShippingFee(address: string) {
+    const res = await this.apiClientService.get("https://nominatim.openstreetmap.org/search", {
+      params: { q: address, format: "jsonv2" },
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      },
+    });
+
+    if (!res || res.length === 0) {
+      throw new BadRequestException("Không tìm thấy địa chỉ, vui lòng thử lại.");
+    }
+
+    const lat = res[0].lat;
+    const lng = res[0].lon;
+
+    const distance = this.haversineDistance(STORE_LAT, STORE_LNG, Number(lat), Number(lng));
+
+    return Math.max(MIN_SHIPPING_FEE, Math.round((distance * RATE_PER_KM) / 1000) * 1000);
+  }
+
+  private haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance;
   }
 
   async handleOnlineBankingPaymentResult(returnedParams: any) {

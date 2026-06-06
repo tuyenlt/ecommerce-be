@@ -56,6 +56,8 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
       "order.id",
       "order.user_id",
       "order.status",
+      "order.shipping_fee",
+      "order.total_amount",
       "order.payment_status",
       "order.payment_method",
       "order.created_at",
@@ -66,6 +68,8 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
       "product.name",
       "product.images",
     ]);
+
+    qb.addOrderBy("order.created_at", "DESC");
     const orders = await qb.getMany();
     return orders;
   }

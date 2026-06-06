@@ -10,6 +10,8 @@ export enum ETableName {
   PRODUCT_VECTOR = "product_vectors",
   BANNER = "banners",
   CONTACT_MESSAGE = "contact_messages",
+  FLASH_SALE = "flash_sales",
+  FLASH_SALE_ITEM = "flash_sale_items",
 }
 
 export enum EUserRole {

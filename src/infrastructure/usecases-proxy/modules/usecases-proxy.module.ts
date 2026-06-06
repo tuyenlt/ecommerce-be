@@ -18,9 +18,11 @@ import orderUsecasesProvider from "../providers/order-usecases.provider";
 import statUsecasesProvider from "../providers/stat-usecases.provider";
 import bannerUsecasesProvider from "../providers/banner-usecases.provider";
 import supportChatUsecasesProvider from "../providers/support-chat-usecases.provider";
+import flashSaleUsecasesProvider from "../providers/flash-sale-usecases.provider";
 import { OnlineBankingModule } from "src/infrastructure/services/online-banking/online-banking.module";
 import { StorageModule } from "src/infrastructure/services/storage/storage.module";
 import { DataProcessingModule } from "src/infrastructure/services/data-processing/data-processing.module";
+import { ApiClientModule } from "src/infrastructure/services/api-client/api-client.module";
 @Module({
   imports: [
     LoggerModule,
@@ -33,6 +35,7 @@ import { DataProcessingModule } from "src/infrastructure/services/data-processin
     OnlineBankingModule,
     StorageModule,
     DataProcessingModule,
+    ApiClientModule,
   ],
   providers: [JwtTokenService],
   exports: [JwtTokenService],
@@ -53,6 +56,7 @@ export class UsecasesProxyModule extends ProxyModule {
         statUsecasesProvider,
         bannerUsecasesProvider,
         supportChatUsecasesProvider,
+        flashSaleUsecasesProvider,
       ],
       exports: Object.values(ProxyModule),
     };

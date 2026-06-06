@@ -9,4 +9,5 @@ export class ProxyModule {
   public static STAT_USECASES = "STAT_USECASES";
   public static BANNER_USECASES = "BANNER_USECASES";
   public static SUPPORT_CHAT_USECASES = "SUPPORT_CHAT_USECASES";
+  public static FLASH_SALE_USECASES = "FLASH_SALE_USECASES";
 }
