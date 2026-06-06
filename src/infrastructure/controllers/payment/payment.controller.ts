@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Post, Query, Req } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { EQRType } from "src/infrastructure/common/constants/services.constant";
 import { VNPayBankingService } from "src/infrastructure/services/online-banking/online-banking.service";
@@ -32,7 +32,12 @@ export class PaymentController {
 
   @Get("/call-back")
   @Public()
-  async handlePaymentCallBack(@Query() params: any) {
-    return await this.orderUseCases.getInstance().handleOnlineBankingPaymentResult(params);
+  async handlePaymentCallBack(@Query() params: any, @Req() req: any) {
+    const result = await this.orderUseCases.getInstance().handleOnlineBankingPaymentResult(params);
+    if (result.success) {
+      req.res.redirect("http://localhost:3000/cart/payment-info/success");
+    } else {
+      req.res.redirect("http://localhost:3000/cart/payment-info/failed");
+    }
   }
 }
