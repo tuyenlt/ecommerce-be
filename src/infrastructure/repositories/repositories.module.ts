@@ -19,6 +19,10 @@ import { CartItemRepository } from "./cart-item.repository";
 import { OrderItemRepository } from "./order-item.repository";
 import { ProductVectorEntity } from "../entities/product-vector.entity";
 import { ProductVectorRepository } from "./product-vector.repository";
+import { BannerEntity } from "../entities/banner.entity";
+import { BannerRepository } from "./banner.repository";
+import { ContactMessageEntity } from "../entities/contact-message.entity";
+import { ContactMessageRepository } from "./contact-message.repository";
 
 @Module({
   imports: [
@@ -33,6 +37,8 @@ import { ProductVectorRepository } from "./product-vector.repository";
       CartItemEntity,
       OrderItemEntity,
       ProductVectorEntity,
+      BannerEntity,
+      ContactMessageEntity,
     ]),
   ],
   providers: [
@@ -45,6 +51,8 @@ import { ProductVectorRepository } from "./product-vector.repository";
     CartItemRepository,
     OrderItemRepository,
     ProductVectorRepository,
+    BannerRepository,
+    ContactMessageRepository,
   ],
   exports: [
     UserRepository,
@@ -56,6 +64,8 @@ import { ProductVectorRepository } from "./product-vector.repository";
     CartItemRepository,
     OrderItemRepository,
     ProductVectorRepository,
+    BannerRepository,
+    ContactMessageRepository,
   ],
 })
 export class RepositoriesModule {}

@@ -8,6 +8,8 @@ export enum ETableName {
   CART = "carts",
   CART_ITEM = "cart_items",
   PRODUCT_VECTOR = "product_vectors",
+  BANNER = "banners",
+  CONTACT_MESSAGE = "contact_messages",
 }
 
 export enum EUserRole {
@@ -31,6 +33,11 @@ export enum EPaymentStatus {
   UNPAID = "unpaid",
   PAID = "paid",
   FAILED = "failed",
+}
+
+export enum EContactMessageType {
+  CUSTOMER_TO_ADMIN = "customer_to_admin",
+  ADMIN_TO_CUSTOMER = "admin_to_customer",
 }
 
 export const EMAIL_MAX_LENGTH = 255;

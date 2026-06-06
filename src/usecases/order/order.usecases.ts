@@ -108,6 +108,7 @@ export class OrderUsecases extends BaseUseCases {
       order.address = dto.address;
       order.phone = dto.phone;
       order.payment_method = dto.payment_method;
+      order.shipping_fee = 0;
       order.total_amount = orderItems.reduce(
         (total, item) => total + item.price * item.quantity,
         0,

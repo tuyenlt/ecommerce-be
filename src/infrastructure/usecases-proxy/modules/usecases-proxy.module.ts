@@ -16,6 +16,8 @@ import userUsecasesProvider from "../providers/user-usecases.provider";
 import cartUsecasesProvider from "../providers/cart-usecases.provider";
 import orderUsecasesProvider from "../providers/order-usecases.provider";
 import statUsecasesProvider from "../providers/stat-usecases.provider";
+import bannerUsecasesProvider from "../providers/banner-usecases.provider";
+import supportChatUsecasesProvider from "../providers/support-chat-usecases.provider";
 import { OnlineBankingModule } from "src/infrastructure/services/online-banking/online-banking.module";
 import { StorageModule } from "src/infrastructure/services/storage/storage.module";
 import { DataProcessingModule } from "src/infrastructure/services/data-processing/data-processing.module";
@@ -49,6 +51,8 @@ export class UsecasesProxyModule extends ProxyModule {
         cartUsecasesProvider,
         orderUsecasesProvider,
         statUsecasesProvider,
+        bannerUsecasesProvider,
+        supportChatUsecasesProvider,
       ],
       exports: Object.values(ProxyModule),
     };
