@@ -42,6 +42,7 @@ export class ProductRepository extends BaseCrudRepository<ProductEntity> {
       "product.sale_price",
       "product.images",
       "product.description",
+      "product.purchased",
       "product.specs",
       "product.created_at",
       "product.stock",

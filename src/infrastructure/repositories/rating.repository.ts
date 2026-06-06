@@ -25,6 +25,7 @@ export class RatingRepository
       where: productId ? { product_id: productId } : {},
       take: limit,
       skip: (page - 1) * limit,
+      relations: ["user"],
     });
 
     return {

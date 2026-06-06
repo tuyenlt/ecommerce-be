@@ -27,12 +27,22 @@ export class AuthUsecases extends BaseUseCases {
       throw new BadRequestException(this.i18n.t("auth.EMAIL_ALREADY_EXISTS"));
     }
     const hashedPassword = await this.bycryptService.hash(dto.password);
-    const newUser = await this.userRepository.create({
+    const user = await this.userRepository.create({
       email: dto.email,
       password: hashedPassword,
       full_name: dto.full_name,
     });
-    return this.issueTokens(newUser);
+    const tokens = await this.issueTokens(user);
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name,
+        avatar_url: user.avatar_url,
+        role: user.role,
+      },
+    };
   }
 
   async loginByEmail(email: string, password: string) {
@@ -56,7 +66,17 @@ export class AuthUsecases extends BaseUseCases {
     if (!isPasswordValid) {
       throw new BadRequestException(this.i18n.t("auth.INVALID_CREDENTIALS"));
     }
-    return await this.issueTokens(user);
+    const tokens = await this.issueTokens(user);
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name,
+        avatar_url: user.avatar_url,
+        role: user.role,
+      },
+    };
   }
 
   async refreshToken(refresh_token: string) {

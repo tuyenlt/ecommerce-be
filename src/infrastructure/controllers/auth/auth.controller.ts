@@ -32,15 +32,16 @@ export class AuthController {
       .getInstance()
       .loginByEmail(loginDto.email, loginDto.password);
     req.res.setHeader("Set-Cookie", result.refreshTokenCookie);
-    return { accessToken: result.accessToken };
+    return { accessToken: result.accessToken, user: result.user };
   }
 
   @Post("register")
   @Public()
   @ApiOperation({ summary: "Register user by email and password" })
-  async register(@Body() registerDto: RegisterRequestDto) {
+  async register(@Body() registerDto: RegisterRequestDto, @Req() req: any) {
     const res = await this.authUsecases.getInstance().register(registerDto);
-    return { accessToken: res.accessToken };
+    req.res.setHeader("Set-Cookie", res.refreshTokenCookie);
+    return { accessToken: res.accessToken, user: res.user };
   }
 
   @Delete("logout")

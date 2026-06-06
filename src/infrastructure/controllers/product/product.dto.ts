@@ -10,6 +10,7 @@ export enum EProductSortBy {
   PRICE = "base_price",
   CREATED_AT = "created_at",
   RATING = "avg_rating",
+  PURCHASE_COUNT = "purchased",
 }
 
 export class GetListProductDto extends OmitType(PaginationDto<ProductEntity>, [

@@ -41,6 +41,7 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
             images: true,
           },
         },
+        created_at: true,
       },
     });
     return order;
@@ -57,6 +58,7 @@ export class OrderRepository extends BaseCrudRepository<OrderEntity> implements 
       "order.status",
       "order.payment_status",
       "order.payment_method",
+      "order.created_at",
       "items.id",
       "items.quantity",
       "items.price",
