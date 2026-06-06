@@ -69,6 +69,7 @@ services:
     volumes:
       - .:/app
       - ./logs:/app/logs
+      - ./uploads:/app/uploads
     extra_hosts:
       - "host.docker.internal:host-gateway"
 volumes:
