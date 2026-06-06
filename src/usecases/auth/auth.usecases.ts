@@ -157,6 +157,6 @@ export class AuthUsecases extends BaseUseCases {
   }
 
   private async generateRefreshTokenCookie(refresh_token: string) {
-    return `Refresh=${refresh_token}; HttpOnly; Path=/; Max-Age=${this.RT_EXPIRES_IN}`;
+    return `Refresh=${refresh_token}; HttpOnly; Path=/; Secure; SameSite=Lax; Max-Age=${this.RT_EXPIRES_IN}`;
   }
 }
