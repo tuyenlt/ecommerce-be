@@ -19,7 +19,7 @@ export class ChatService {
       { role: "user", content: message },
     ];
 
-    const tools = this.toolRegistry.getTools().map((tool) => this.convertGeminiToolToOpenAI(tool));
+    const tools = this.toolRegistry.getTools();
     const maxIterations = 5;
     let currentIteration = 0;
 
@@ -68,7 +68,7 @@ export class ChatService {
       { role: "user", content: message },
     ];
 
-    const tools = this.toolRegistry.getTools().map((tool) => this.convertGeminiToolToOpenAI(tool));
+    const tools = this.toolRegistry.getTools();
     const maxIterations = 5;
     let currentIteration = 0;
     let shouldContinue = true;
@@ -163,58 +163,5 @@ export class ChatService {
         shouldContinue = false;
       }
     }
-  }
-
-  private convertSchema(geminiSchema: any): any {
-    if (!geminiSchema) return undefined;
-
-    const openAISchema: any = { ...geminiSchema };
-
-    if (typeof openAISchema.type === "string") {
-      openAISchema.type = openAISchema.type.toLowerCase();
-    }
-
-    if (openAISchema.nullable) {
-      if (typeof openAISchema.type === "string") {
-        openAISchema.type = [openAISchema.type, "null"];
-      } else if (Array.isArray(openAISchema.type) && !openAISchema.type.includes("null")) {
-        openAISchema.type.push("null");
-      }
-      delete openAISchema.nullable;
-    }
-
-    if (openAISchema.properties) {
-      const requiredFields = openAISchema.required || [];
-      const newProps = {};
-      for (const key of Object.keys(openAISchema.properties)) {
-        const propSchema = this.convertSchema(openAISchema.properties[key]);
-        if (!requiredFields.includes(key) && propSchema && propSchema.type) {
-          if (typeof propSchema.type === "string") {
-            propSchema.type = [propSchema.type, "null"];
-          } else if (Array.isArray(propSchema.type) && !propSchema.type.includes("null")) {
-            propSchema.type.push("null");
-          }
-        }
-        newProps[key] = propSchema;
-      }
-      openAISchema.properties = newProps;
-    }
-
-    if (openAISchema.items) {
-      openAISchema.items = this.convertSchema(openAISchema.items);
-    }
-
-    return openAISchema;
-  }
-
-  private convertGeminiToolToOpenAI(geminiTool: any): any {
-    return {
-      type: "function",
-      function: {
-        name: geminiTool.name,
-        description: geminiTool.description,
-        parameters: this.convertSchema(geminiTool.parameters),
-      },
-    };
   }
 }

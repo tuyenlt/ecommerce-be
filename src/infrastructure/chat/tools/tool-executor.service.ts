@@ -38,6 +38,50 @@ export class ToolExecutorService {
         throw new Error(`Unknown tool ${name}`);
     }
   }
+  private cleanText(text: string | null | undefined): string {
+    if (!text) return "";
+    return text
+      .replace(/<[^>]*>/g, " ") // Remove HTML tags
+      .replace(/\s+/g, " ") // Collapse whitespace/newlines
+      .trim();
+  }
+
+  private cleanAndTruncate(text: string | null | undefined, maxLength = 200): string {
+    const clean = this.cleanText(text);
+    if (clean.length <= maxLength) return clean;
+    return clean.slice(0, maxLength) + "...";
+  }
+
+  private parseAndFormatSpecs(specsStr: string | null | undefined, maxLength = 200): string {
+    if (!specsStr) return "";
+    try {
+      const parsed = typeof specsStr === "string" ? JSON.parse(specsStr) : specsStr;
+      if (Array.isArray(parsed)) {
+        const formatted = parsed
+          .map((spec) => {
+            const name = this.cleanText(spec?.name);
+            const value = this.cleanText(spec?.value);
+            return name && value ? `${name}: ${value}` : "";
+          })
+          .filter(Boolean)
+          .join(", ");
+        return this.cleanAndTruncate(formatted, maxLength);
+      } else if (typeof parsed === "object" && parsed !== null) {
+        const formatted = Object.entries(parsed)
+          .map(([key, val]) => {
+            const name = this.cleanText(key);
+            const value = this.cleanText(String(val));
+            return name && value ? `${name}: ${value}` : "";
+          })
+          .filter(Boolean)
+          .join(", ");
+        return this.cleanAndTruncate(formatted, maxLength);
+      }
+    } catch {
+      // Fallback to plain text if JSON parsing fails
+    }
+    return this.cleanAndTruncate(specsStr, maxLength);
+  }
 
   private async searchProducts(args: any) {
     try {
@@ -56,7 +100,23 @@ export class ToolExecutorService {
         sortOrder: args.sortDirection || "DESC",
       };
 
-      return await this.productUsecases.getInstance().getListProducts(query);
+      const result = await this.productUsecases.getInstance().getListProducts(query);
+      return {
+        data: result.data.map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          base_price: product.base_price,
+          sale_price: product.sale_price,
+          color: product.color,
+          description: this.cleanAndTruncate(product.description, 200),
+          specs: this.parseAndFormatSpecs(product.specs, 200),
+          stock: product.stock,
+          flash_sale: product.flash_sale,
+        })),
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+      };
     } catch (error) {
       throw new BadRequestException(`Failed to search products: ${error.message}`);
     }
@@ -67,7 +127,13 @@ export class ToolExecutorService {
       const query = args.query;
       const k = args.k || 5;
       const data = await this.productUsecases.getInstance().topKVectorSearch(query, k);
-      return { data };
+      return {
+        data: data.map((item: any) => ({
+          product_id: item.product_id,
+          embedding_text: this.cleanAndTruncate(item.embedding_text, 300),
+          score: item.score,
+        })),
+      };
     } catch (error) {
       throw new BadRequestException(`Failed to search products by vector: ${error.message}`);
     }
@@ -76,9 +142,28 @@ export class ToolExecutorService {
   private async addToCart(args: any, user: any) {
     try {
       if (!user) throw new Error("Vui lòng đăng nhập để thêm vào giỏ hàng");
+
+      let productId = args.product_id;
+      if (!productId && args.keyword) {
+        const searchResult = await this.productUsecases.getInstance().getListProducts({
+          name: args.keyword,
+          page: 1,
+          limit: 1,
+        });
+        if (searchResult.data && searchResult.data.length > 0) {
+          productId = searchResult.data[0].id;
+        } else {
+          throw new Error(`Không tìm thấy sản phẩm nào khớp với từ khóa "${args.keyword}"`);
+        }
+      }
+
+      if (!productId) {
+        throw new Error("Không thể thêm vào giỏ hàng vì thiếu ID sản phẩm hoặc từ khóa tìm kiếm.");
+      }
+
       return await this.cartUsecases.getInstance().addToCart(user.id, {
-        product_id: args.product_id,
-        quantity: args.quantity,
+        product_id: productId,
+        quantity: args.quantity || 1,
       });
     } catch (error) {
       throw new BadRequestException(`Failed to add to cart: ${error.message}`);

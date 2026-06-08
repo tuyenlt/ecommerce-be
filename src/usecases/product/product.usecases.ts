@@ -35,9 +35,11 @@ export class ProductUsecases extends BaseUseCases {
     ) {
       throw new BadRequestException(this.i18n.t("product.INVALID_PRICE_RANGE"));
     }
-    const category = await this.categoryRepository.getOneByIdOrFail(query.category_id);
-    if (category) {
-      query.category_path = category.path;
+    if (query.category_id) {
+      const category = await this.categoryRepository.getOneByIdOrFail(query.category_id);
+      if (category) {
+        query.category_path = category.path;
+      }
     }
 
     const result = await this.productRepository.getListPagination(query);
