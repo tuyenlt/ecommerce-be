@@ -57,8 +57,8 @@ async function bootstrap() {
     credentials: true,
     origin: [
       "http://localhost:3000",
-      process.env.FRONTEND_URL?.trim(),
-      process.env.ADMIN_URL?.trim(),
+      // process.env.FRONTEND_URL?.trim(),
+      // process.env.ADMIN_URL?.trim(),
       "http://localhost:5173",
       "http://localhost:5174",
       "https://ecommerce.tmsherk.id.vn",
