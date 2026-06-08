@@ -149,7 +149,7 @@ export class OrderUsecases extends BaseUseCases {
         order.online_bank_url = await this.onlineBankingService.createOnlineBankingUrl(
           {
             code: code,
-            amount: order.total_amount + order.shipping_fee,
+            amount: order.total_amount,
             order_info: "",
           },
           EQRType.ORDER_PAYMENT,
