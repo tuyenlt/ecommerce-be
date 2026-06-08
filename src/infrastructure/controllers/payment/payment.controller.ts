@@ -35,9 +35,9 @@ export class PaymentController {
   async handlePaymentCallBack(@Query() params: any, @Req() req: any) {
     const result = await this.orderUseCases.getInstance().handleOnlineBankingPaymentResult(params);
     if (result.success) {
-      req.res.redirect("http://localhost:3000/cart/payment-info/success");
+      req.res.redirect(`https://ecommerce.tmsherk.id.vn/orders/${result.order_id}`);
     } else {
-      req.res.redirect("http://localhost:3000/cart/payment-info/failed");
+      req.res.redirect(`https://ecommerce.tmsherk.id.vn/orders/${result.order_id}`);
     }
   }
 }

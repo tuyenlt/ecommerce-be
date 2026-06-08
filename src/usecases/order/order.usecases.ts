@@ -263,6 +263,7 @@ export class OrderUsecases extends BaseUseCases {
     return {
       success: true,
       message: this.i18n.t("PAYMENT.ONLINE_BANKING.SUCCESS"),
+      order_id: order.id,
     };
   }
 
